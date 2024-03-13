@@ -1,0 +1,17 @@
+{
+  "name": "llmweb",
+  "private": true,
+  "version": "1.0.0",
+  "description": "llmweb monorepo",
+  "author": "llmweb",
+  "license": "MIT",
+  "scripts": {
+    "audit": "npm run audit -ws",
+    "build": "npm run build -ws",
+    "test": "npm run test -ws"
+  },
+  "workspaces": [
+    "apps/*",
+    "libs/*"
+  ]
+}

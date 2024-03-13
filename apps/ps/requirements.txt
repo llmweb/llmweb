@@ -1,0 +1,24 @@
+flask
+jupyterlab
+notebook
+streamlit
+openai
+python-dotenv
+# jupysql
+# duckdb
+# duckdb-engine
+# plotly
+# pandas
+# matplotlib
+
+
+# ipywidgets
+
+# pandas < 2.1
+
+# https://altair-viz.github.io/index.html
+# altair
+
+# https://ibis-project.org
+# ibis-framework[sqlite,duckdb,clickhouse]
+# ibis-substrait < 3.1

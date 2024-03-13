@@ -1,0 +1,13 @@
+html, body {
+    height: 100%;
+    margin: 0; /* Remove default margin */
+    padding: 0; /* Remove default padding */
+  }
+
+#root {
+    height: 100%;
+}
+
+.markdown-body {
+  background-color: transparent;
+}
