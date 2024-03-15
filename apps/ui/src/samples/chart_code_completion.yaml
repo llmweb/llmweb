@@ -4,7 +4,7 @@ flows: |-
   js_completion:
     description: Complete Code
     type: llm
-    source:
+    context:
       name: js_completion
       module: custom_prompts
     inputs:
@@ -16,5 +16,5 @@ prompts: |-
 
     USER:
     {{message}}
-Contexts: ''
+datasets: ''
 functions: ''

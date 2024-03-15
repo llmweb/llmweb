@@ -5,8 +5,8 @@ export const CHART_JS_COMPLETION = {
 js_completion:
   description: Complete Code
   type: llm
-  source:
-    name: js_completion
+  context:
+    entry: js_completion
     module: custom_prompts
   inputs:
     message: "{{inputs.message}}"
@@ -19,7 +19,7 @@ js_completion: |
   USER:
   {{message}}
     `.trim(),
-    Contexts: `
+    datasets: `
     `.trim(),
     functions: `
     `.trim(),

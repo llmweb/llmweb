@@ -8,7 +8,7 @@ export interface Chart {
     description: string;
     flows: string;
     prompts: string;
-    Contexts: string;
+    datasets: string;
     functions: string;
 }
 

@@ -24,5 +24,5 @@ const getPrompt = (moduleName: string, promptName: string) => {
 };
 
 export const getPromptAsStringTemplate = (moduleName: string, promptName: string) => {
-    return getPrompt(moduleName, promptName).trim().replace('{{','${').replace('}}','}');
+    return getPrompt(moduleName, promptName).trim().replace(/{{/g,'${').replace(/}}/g,'}');
 }

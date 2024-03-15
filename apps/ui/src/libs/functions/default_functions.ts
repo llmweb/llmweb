@@ -1,11 +1,12 @@
-import { queryLLM } from "../llm/webllm";
 import { registerModule } from "./functions";
 import { queryVectorStore } from "../vectordb";
 import { evalStringTemplate } from "../utils";
 import { getPromptAsStringTemplate } from "../prompts";
+import { queryModel } from "../llm";
+import { getLangModel } from "../llm";
 
 /////////
-const retrieveContents = async ({ query, category, count, toJSON }) => {
+const retrieveContents = async ({ query, category, count }, { toJSON }) => {
   const resp = await queryVectorStore(query, {
     category,
     count,
@@ -15,17 +16,17 @@ const retrieveContents = async ({ query, category, count, toJSON }) => {
   return result;
 };
 
-const queryByPromptTemplate = async ({ source: { module, name }, inputs }) => {
-  const promptTemplate = getPromptAsStringTemplate(module, name);
-  const { toJSON, ...promptInputs } = inputs;
+const queryByPromptTemplate = async ( promptInputs, { module, entry, toJSON }) => {
+  const promptTemplate = getPromptAsStringTemplate(module, entry);
   const query = evalStringTemplate(
     promptTemplate,
     promptInputs,
     true
   ) as string;
   if (query) {
-    return queryLLM({
+    return queryModel({
       query,
+      model: getLangModel(),
       toJSON,
     });
   }
@@ -36,7 +37,7 @@ registerModule("default_functions", {
   registerModule,
 
   // Query LLM
-  queryLLM,
+  queryLLM: queryModel,
 
   // Query Vector Store
   queryVectorStore,

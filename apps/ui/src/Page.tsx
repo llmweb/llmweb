@@ -18,14 +18,17 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import yaml from "js-yaml";
-import { CopilotProvider, CopilotWidget } from "./components";
-import { ChatView, FlowChartView } from "./views";
+import { CopilotProvider } from "./components";
+import { ChatView, FlowChartView, SettingsView } from "./views";
 import { eventBus } from "./libs/EventBus";
 import {
   CATEGORY_JS_COMPLETION,
   CATEGORY_SANDBOX,
   EVENT_COPILOT_DEBUG,
   EVENT_COPILOT_UPDATE_SANDBOX_FLOW,
+  PANEL_NONE,
+  PANEL_PREVIEW,
+  PANEL_SETTINGS,
 } from "./const";
 import { Allotment } from "allotment";
 import "allotment/dist/style.css";
@@ -41,22 +44,10 @@ import { getChart, getCharts } from "./libs/charts";
 import { registerPrompt } from "./libs/prompts";
 
 import { MaterialIcon, MonacoEditor } from "./components";
-import {
-  evalJsBlock,
-  downloadYaml,
-  uploadYaml,
-} from "./libs/utils";
+import { evalJsBlock, downloadYaml, uploadYaml } from "./libs/utils";
 import { getFunctions } from "./libs/functions";
 import { LogView } from "./views/LogView";
 import "./samples";
-
-/*
-      console.log(yaml.dump(contexts, {
-        lineWidth: -1,
-        noRefs: true,
-        noCompatMode: true,
-      }));
-      */
 
 // TODO: needs to load from Retrieval tab too
 initVectorStore();
@@ -76,6 +67,8 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
   const [charts, setCharts] = useState(CHARTS);
   const [chart, setChart] = useState(DEFAULT_CHART);
   const [flow, setFlow] = useState([]);
+
+  const [panelType, setPanelType] = useState(PANEL_NONE);
 
   // url hook
   useEffect(() => {
@@ -140,330 +133,354 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
   return (
     <ChakraProvider>
       <CopilotProvider>
-        <Grid
-          templateAreas={`"header"
+        <Allotment defaultSizes={[10, 90]}>
+          {/* Navigation Bar */}
+          <Allotment.Pane>
+            <List spacing={1}>
+              {charts.map((chart, idx) => {
+                return (
+                  <ListItem
+                    key={idx}
+                    style={{
+                      paddingLeft: "7px",
+                      paddingTop: "5px",
+                      paddingBottom: "5px",
+                      backgroundColor:
+                        chart.name === flowChartUri
+                          ? "#E2E8F0" /*#EEF2F6*/
+                          : "white",
+                    }}
+                  >
+                    <Link
+                      key={chart.name}
+                      href={`#/${chart.name}`}
+                      style={{
+                        wordWrap: "initial",
+                        fontWeight: "normal",
+                      }}
+                    >
+                      {chart.name}
+                    </Link>
+                  </ListItem>
+                );
+              })}
+            </List>
+          </Allotment.Pane>
+          <Allotment.Pane>
+            <Grid
+              templateAreas={`"header"
                   "main"
                   "footer"`}
-          gridTemplateRows={"50px 1fr 30px"}
-          gridTemplateColumns={"1fr"}
-          h="100%"
-          gap="0"
-          color="blackAlpha.700"
-          /*fontWeight="bold"*/
-        >
-          <GridItem /*pl="2" bg='orange.300'*/ area={"header"}>
-            <Flex>
-              <Heading as="h1" pl="2" size="lg" paddingTop={1}>
-                LLM Web
-              </Heading>
-              <Spacer />
-              <div style={{ paddingRight: "20px", paddingTop: "5px" }}>
-                <CopilotWidget />
-              </div>
-            </Flex>
-          </GridItem>
-          <GridItem
-            /* pl="2" bg='green.300'*/
-            area={"main"}
-            display="flex"
-            borderTop="1px"
-            borderColor={"#E2E8F0"}
-          >
-            <div
-              style={{
-                width: "100%",
-                height: "100%",
-                overflow: "hidden",
-              }}
+              gridTemplateRows={"50px 1fr 30px"}
+              gridTemplateColumns={"1fr"}
+              h="100%"
+              gap="0"
+              color="blackAlpha.700"
+              /*fontWeight="bold"*/
             >
-              <Allotment defaultSizes={[30, 200, 70]}>
-                {/* Navigation Bar */}
-                <Allotment.Pane>
-                  <List spacing={1}>
-                    {charts.map((chart, idx) => {
-                      return (
-                        <ListItem
-                          key={idx}
-                          style={{
-                            paddingLeft: "7px",
-                            paddingTop: "5px",
-                            paddingBottom: "5px",
-                            backgroundColor:
-                              chart.name === flowChartUri
-                                ? "#E2E8F0" /*#EEF2F6*/
-                                : "white",
-                          }}
-                        >
-                          <Link
-                            key={chart.name}
-                            href={`#/${chart.name}`}
-                            style={{
-                              wordWrap: "initial",
-                              fontWeight: "normal",
-                            }}
-                          >
-                            {chart.name}
-                          </Link>
-                        </ListItem>
-                      );
-                    })}
-                  </List>
-                </Allotment.Pane>
-                {/* Main */}
-                <Allotment.Pane>
-                  <Allotment vertical defaultSizes={[100, 100]}>
-                    {/* Editor */}
-                    <Allotment.Pane>
-                      <Tabs
-                        variant="enclosed"
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          height: "100%",
+              <GridItem /*pl="2" bg='orange.300'*/ area={"header"}>
+                <Flex>
+                  <Heading as="h1" pl="2" size="lg" paddingTop={1}>
+                    {chart.name}
+                  </Heading>
+                  <Spacer />
+                  {/* Command bar */}
+                  <div style={{ paddingRight: "5px", paddingTop: "10px" }}>
+                    <Flex>
+                      <IconButton
+                        size={"sm"}
+                        title="Open..."
+                        aria-label="Open..."
+                        variant={"outline"}
+                        color="#6c6c6c"
+                        icon={<MaterialIcon icon="folder_open" />}
+                        marginLeft={2}
+                        onClick={async () => {
+                          const chart = (await uploadYaml()) as any;
+                          setCharts((charts) => [...charts, chart]);
                         }}
-                      >
-                        <Flex top={1} right={2} position={"absolute"}>
-                          <IconButton
-                            size={"sm"}
-                            title="Open..."
-                            aria-label="Open..."
-                            variant={"outline"}
-                            color="#6c6c6c"
-                            icon={<MaterialIcon icon="folder_open" />}
-                            marginLeft={2}
-                            onClick={async () => {
-                              const chart = (await uploadYaml()) as any;
-                              setCharts((charts) => [...charts, chart]);
-                            }}
-                          />
-                          <IconButton
-                            size={"sm"}
-                            title="Save to File"
-                            aria-label="Save to File"
-                            variant={"outline"}
-                            color="#6c6c6c"
-                            icon={<MaterialIcon icon="save" />}
-                            marginLeft={2}
-                            onClick={() => {
-                              downloadYaml(chart.name, chart);
-                            }}
-                          />
-                        </Flex>
-                        <TabList>
-                          <Tab>Flows</Tab>
-                          <Tab>Prompts</Tab>
-                          <Tab>Contexts</Tab>
-                          <Tab>Functions</Tab>
-                        </TabList>
-                        <TabPanels
-                          style={{
-                            height: "100%",
-                          }}
-                        >
-                          <TabPanel
+                      />
+                      <IconButton
+                        size={"sm"}
+                        title="Save to File"
+                        aria-label="Save to File"
+                        variant={"outline"}
+                        color="#6c6c6c"
+                        icon={<MaterialIcon icon="save" />}
+                        marginLeft={2}
+                        onClick={() => {
+                          downloadYaml(chart.name, chart);
+                        }}
+                      />
+                      <IconButton
+                        size={"sm"}
+                        title="Flow Chart Preview"
+                        aria-label="Flow Chart Preview"
+                        variant={panelType === PANEL_PREVIEW ? "solid" : "outline"}
+                        color="#6c6c6c"
+                        icon={<MaterialIcon icon="schema" />}
+                        marginLeft={2}
+                        onClick={() => {
+                          setPanelType(panelType === PANEL_PREVIEW ? PANEL_NONE : PANEL_PREVIEW);
+                        }}
+                      />
+                      <IconButton
+                        size={"sm"}
+                        title="Settings"
+                        aria-label="Settings"
+                        variant={panelType === PANEL_SETTINGS ? "solid" : "outline"}
+                        color="#6c6c6c"
+                        icon={<MaterialIcon icon="settings" />}
+                        marginLeft={2}
+                        onClick={() => {
+                          setPanelType(panelType === PANEL_SETTINGS ? PANEL_NONE : PANEL_SETTINGS);
+                        }}
+                      />
+                    </Flex>
+                  </div>
+                </Flex>
+              </GridItem>
+              <GridItem
+                /* pl="2" bg='green.300'*/
+                area={"main"}
+                display="flex"
+                borderTop="1px"
+                borderColor={"#E2E8F0"}
+              >
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    overflow: "hidden",
+                  }}
+                >
+                  <Allotment defaultSizes={[200, 10]}>
+                    {/* Main */}
+                    <Allotment.Pane>
+                      <Allotment vertical defaultSizes={[100, 100]}>
+                        {/* Editor */}
+                        <Allotment.Pane>
+                          <Tabs
+                            variant="enclosed"
                             style={{
+                              display: "flex",
+                              flexDirection: "column",
                               height: "100%",
-                              paddingLeft: 0,
-                              paddingRight: 0,
                             }}
                           >
-                            <MonacoEditor
-                              lang="yaml"
-                              text={chart.flows}
-                              category={CATEGORY_JS_COMPLETION}
-                              onChange={(text) => {
-                                setChart((chart) => ({
-                                  ...chart,
-                                  flows: text,
-                                }));
-                              }}
-                            />
-                          </TabPanel>
-                          <TabPanel
-                            style={{
-                              height: "100%",
-                              paddingLeft: 0,
-                              paddingRight: 0,
-                            }}
-                          >
-                            <MonacoEditor
-                              lang="yaml"
-                              text={chart.prompts}
-                              category={CATEGORY_JS_COMPLETION}
-                              onChange={(text) => {
-                                setChart((chart) => ({
-                                  ...chart,
-                                  prompts: text,
-                                }));
-                              }}
-                            />
-                          </TabPanel>
-                          <TabPanel
-                            style={{
-                              height: "100%",
-                              paddingLeft: 0,
-                              paddingRight: 0,
-                            }}
-                          >
-                            <MonacoEditor
-                              lang="yaml"
-                              text={chart.Contexts}
-                              category={CATEGORY_JS_COMPLETION}
-                              onChange={(text) => {
-                                setChart((chart) => ({
-                                  ...chart,
-                                  Contexts: text,
-                                }));
-                              }}
-                            />
-                            <Button
+                            <TabList>
+                              <Tab>Flows</Tab>
+                              <Tab>Prompts</Tab>
+                              <Tab>Datasets</Tab>
+                              <Tab>Functions</Tab>
+                            </TabList>
+                            <TabPanels
                               style={{
-                                position: "absolute",
-                                bottom: "35px",
-                                right: "25px",
-                              }}
-                              onClick={async () => {
-                                let contexts = {};
-                                try {
-                                  contexts =
-                                    yaml.load(chart.Contexts) || {};
-                                } catch (e) {
-                                  console.error(e);
-                                }
-                                await resetVectorStore();
-                                await Promise.all(
-                                  Object.entries(contexts).map(
-                                    ([category, content]) =>
-                                      addDocumentsToVectorStore(content as string, {
-                                        category,
-                                      })
-                                  )
-                                );
+                                height: "100%",
                               }}
                             >
-                              Save to VectorDB
-                            </Button>
-                          </TabPanel>
-                          <TabPanel
+                              <TabPanel
+                                style={{
+                                  height: "100%",
+                                  paddingLeft: 0,
+                                  paddingRight: 0,
+                                }}
+                              >
+                                <MonacoEditor
+                                  lang="yaml"
+                                  text={chart.flows}
+                                  category={CATEGORY_JS_COMPLETION}
+                                  onChange={(text) => {
+                                    setChart((chart) => ({
+                                      ...chart,
+                                      flows: text,
+                                    }));
+                                  }}
+                                />
+                              </TabPanel>
+                              <TabPanel
+                                style={{
+                                  height: "100%",
+                                  paddingLeft: 0,
+                                  paddingRight: 0,
+                                }}
+                              >
+                                <MonacoEditor
+                                  lang="yaml"
+                                  text={chart.prompts}
+                                  category={CATEGORY_JS_COMPLETION}
+                                  onChange={(text) => {
+                                    setChart((chart) => ({
+                                      ...chart,
+                                      prompts: text,
+                                    }));
+                                  }}
+                                />
+                              </TabPanel>
+                              <TabPanel
+                                style={{
+                                  height: "100%",
+                                  paddingLeft: 0,
+                                  paddingRight: 0,
+                                }}
+                              >
+                                <MonacoEditor
+                                  lang="yaml"
+                                  text={chart.datasets}
+                                  category={CATEGORY_JS_COMPLETION}
+                                  onChange={(text) => {
+                                    setChart((chart) => ({
+                                      ...chart,
+                                      datasets: text,
+                                    }));
+                                  }}
+                                />
+                                <Button
+                                  style={{
+                                    position: "absolute",
+                                    bottom: "35px",
+                                    right: "25px",
+                                  }}
+                                  onClick={async () => {
+                                    let datasets = {};
+                                    try {
+                                      datasets =
+                                        yaml.load(chart.datasets) || {};
+                                    } catch (e) {
+                                      console.error(e);
+                                    }
+                                    await resetVectorStore();
+                                    await Promise.all(
+                                      Object.entries(datasets).map(
+                                        ([category, content]) =>
+                                          addDocumentsToVectorStore(
+                                            content as string,
+                                            {
+                                              category,
+                                            }
+                                          )
+                                      )
+                                    );
+                                  }}
+                                >
+                                  Save to VectorDB
+                                </Button>
+                              </TabPanel>
+                              <TabPanel
+                                style={{
+                                  height: "100%",
+                                  paddingLeft: 0,
+                                  paddingRight: 0,
+                                }}
+                              >
+                                <MonacoEditor
+                                  lang="javascript"
+                                  text={chart.functions}
+                                  category={CATEGORY_JS_COMPLETION}
+                                  onChange={(text) => {
+                                    setChart((chart) => ({
+                                      ...chart,
+                                      functions: text,
+                                    }));
+                                  }}
+                                />
+                              </TabPanel>
+                            </TabPanels>
+                          </Tabs>
+                        </Allotment.Pane>
+                        {/* Playground */}
+                        <Allotment.Pane>
+                          <Tabs
+                            variant="enclosed"
                             style={{
+                              display: "flex",
+                              flexDirection: "column",
                               height: "100%",
-                              paddingLeft: 0,
-                              paddingRight: 0,
                             }}
                           >
-                            <MonacoEditor
-                              lang="javascript"
-                              text={chart.functions}
-                              category={CATEGORY_JS_COMPLETION}
-                              onChange={(text) => {
-                                setChart((chart) => ({
-                                  ...chart,
-                                  functions: text,
-                                }));
+                            <TabList>
+                              <Tab>Chat</Tab>
+                              <Tab>Completion</Tab>
+                              <Tab>Logs</Tab>
+                            </TabList>
+                            <TabPanels
+                              style={{
+                                height: "calc(100% - 40px)",
                               }}
-                            />
-                          </TabPanel>
-                        </TabPanels>
-                      </Tabs>
+                            >
+                              <TabPanel
+                                style={{
+                                  height: "100%",
+                                  paddingLeft: 0,
+                                  paddingRight: 0,
+                                }}
+                              >
+                                <ChatView />
+                              </TabPanel>
+                              <TabPanel
+                                style={{
+                                  height: "100%",
+                                  paddingLeft: 0,
+                                  paddingRight: 0,
+                                }}
+                              >
+                                <MonacoEditor
+                                  lang="javascript"
+                                  text={"// write something"}
+                                  category={CATEGORY_SANDBOX}
+                                />
+                              </TabPanel>
+                              <TabPanel
+                                style={{
+                                  height: "100%",
+                                  paddingLeft: 0,
+                                  paddingRight: 0,
+                                }}
+                              >
+                                <LogView />
+                              </TabPanel>
+                            </TabPanels>
+                          </Tabs>
+                        </Allotment.Pane>
+                      </Allotment>
                     </Allotment.Pane>
-                    {/* Playground */}
-                    <Allotment.Pane>
-                      {/*}
-                      {mode === MODE.CHAT && <ChatView />}
-                      {mode === MODE.CODE && (
-                        <MonacoEditor
-                          lang="javascript"
-                          text={"// write something"}
-                          category={CATEGORY_JS_COMPLETION}
-                        />
-                      )}
-                      */}
-                      <Tabs
-                        variant="enclosed"
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          height: "100%",
-                        }}
-                      >
-                        <TabList>
-                          <Tab>Chat</Tab>
-                          <Tab>Completion</Tab>
-                          <Tab>Logs</Tab>
-                        </TabList>
-                        <TabPanels
-                          style={{
-                            height: "calc(100% - 40px)",
-                          }}
-                        >
-                          <TabPanel
-                            style={{
-                              height: "100%",
-                              paddingLeft: 0,
-                              paddingRight: 0,
-                            }}
-                          >
-                            <ChatView />
-                          </TabPanel>
-                          <TabPanel
-                            style={{
-                              height: "100%",
-                              paddingLeft: 0,
-                              paddingRight: 0,
-                            }}
-                          >
-                            <MonacoEditor
-                              lang="javascript"
-                              text={"// write something"}
-                              category={CATEGORY_SANDBOX}
-                            />
-                          </TabPanel>
-                          <TabPanel
-                            style={{
-                              height: "100%",
-                              paddingLeft: 0,
-                              paddingRight: 0,
-                            }}
-                          >
-                            <LogView />
-                          </TabPanel>
-                        </TabPanels>
-                      </Tabs>
-                    </Allotment.Pane>
+                    {/* Diagram Preview */}
+                    {panelType !== PANEL_NONE && (
+                      <Allotment.Pane snap preferredSize={350}>
+                        { panelType === PANEL_PREVIEW && <FlowChartView flow={flow} /> }
+                        { panelType === PANEL_SETTINGS && <SettingsView />}
+                      </Allotment.Pane>
+                    )}
                   </Allotment>
-                </Allotment.Pane>
-                {/* Diagram Preview */}
-                <Allotment.Pane>
-                  <FlowChartView flow={flow} />
-                </Allotment.Pane>
-              </Allotment>
-            </div>
-          </GridItem>
-          <GridItem
-            pl="2"
-            /*bg="blue.300"*/ area={"footer"}
-            borderTop="1px"
-            borderColor={"#E2E8F0"}
-          >
-            <div
-              style={{
-                color: "gray",
-                fontSize: "12px",
-                fontStyle: "italic",
-                fontWeight: 700,
-                display: "inline",
-                position: "absolute",
-                textOverflow: "ellipsis",
-                textWrap: "nowrap",
-                paddingTop: "5px",
-                maxWidth: "500px",
-                width: "500px",
-              }}
-            >
-              {info}
-            </div>
-          </GridItem>
-        </Grid>
+                </div>
+              </GridItem>
+              <GridItem
+                pl="2"
+                /*bg="blue.300"*/ area={"footer"}
+                borderTop="1px"
+                borderColor={"#E2E8F0"}
+              >
+                <div
+                  style={{
+                    color: "gray",
+                    fontSize: "12px",
+                    fontStyle: "italic",
+                    fontWeight: 700,
+                    display: "inline",
+                    position: "absolute",
+                    textOverflow: "ellipsis",
+                    textWrap: "nowrap",
+                    paddingTop: "5px",
+                    maxWidth: "500px",
+                    width: "500px",
+                  }}
+                >
+                  {info}
+                </div>
+              </GridItem>
+            </Grid>
+          </Allotment.Pane>
+        </Allotment>
       </CopilotProvider>
     </ChakraProvider>
   );

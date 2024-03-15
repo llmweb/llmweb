@@ -5,7 +5,7 @@ export const CHART_TEMPLATE = {
     `.trim(),
     prompts: `
     `.trim(),
-    contexts: `
+    datasets: `
     `.trim(),
     functions: `
     `.trim(),

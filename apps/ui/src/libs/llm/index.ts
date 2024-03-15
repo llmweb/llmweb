@@ -1,34 +1,48 @@
-// TODO: LLM for global provider, needs to be refactor
-import { wait } from "../utils";
-import { MODE_OPENAI, MODE_SERVER, MODE_WEBLLM } from "../../const";
-import { initLLM as initWebLLM, queryOne as queryWebLLM } from "./webllm";
-import { queryOne as queryOpenAI } from "./openai";
-import { queryOne as queryServer } from "./server";
+import { Data } from "../types";
+import { MODEL_GEMINI_PRO } from "./modelGeminiPro";
+import { MODEL_GEMMA_2B } from "./modelGemma2b";
+import { MODEL_GPT4 } from "./modelGpt4";
+import { getModel, registerModel } from "./models";
 
+export { getModels } from "./models";
+export { getApiKey, setApiKey, getLangModel, setLangModel } from "./config";
 
-interface QueryContext {
-  mode: string;
-  category: string;
+interface LLMParamsBase {
+  query: string;
+  model: string;
 }
 
+interface LLMParamsJSON extends LLMParamsBase {
+  toJSON: true;
+}
 
-export const initLLM = async (mode, progressCallback) => {
-  if (mode === MODE_WEBLLM) {
-    return initWebLLM(progressCallback);
-  }
-};
+interface LLMParamsTEXT extends LLMParamsBase {
+  toJSON?: false;
+}
 
-export const queryOne = async (query: string, {mode, category}: QueryContext): Promise<string> => {
-  if (mode === MODE_WEBLLM) {
-    return queryWebLLM(category, query);
-  } else if (mode === MODE_OPENAI) {
-    return queryOpenAI(category, query);
-  } else if (mode === MODE_SERVER) {
-    return queryServer(category, query);
-  } else {
-    // default mode === MODE_MOCK
-    return wait(1000).then(() => {
-      return  Promise.resolve(`{ "modelTypes": ["this is a mock response"], "prop": {}, "iconName": "dummy" }`);
-    });
+export async function queryModel(inputs: LLMParamsJSON): Promise<Data>;
+export async function queryModel(
+  inputs: LLMParamsTEXT
+): Promise<{ message: string }>;
+
+export async function queryModel({
+  query,
+  model,
+  toJSON,
+}: LLMParamsBase & { toJSON?: boolean }): Promise<Data | { message: string }> {
+  const langModel = getModel(model);
+  let resp = await langModel.queryModel(query);
+  if (toJSON) {
+    // remove the first and last line if it's a code block
+    if (resp.startsWith("```")) {
+      resp = resp.split("\n").slice(1, -1).join("\n");
+    }
+    return JSON.parse(resp);
   }
-};
+
+  return { message: resp };
+}
+
+registerModel(MODEL_GEMMA_2B);
+registerModel(MODEL_GEMINI_PRO);
+registerModel(MODEL_GPT4);

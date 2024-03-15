@@ -1,8 +1,5 @@
 // mode
-export const MODE_MOCK = 'mock';
-export const MODE_WEBLLM = 'webllm';
-export const MODE_OPENAI = 'openai';
-export const MODE_SERVER = 'server';
+
 
 // category
 export const CATEGORY_CHAT = 'chat';
@@ -15,3 +12,8 @@ export const EVENT_COPILOT_DEBUG = 'copilot.debug';
 export const EVENT_COPILOT_UPDATE = 'copilot.update';
 export const EVENT_COPILOT_QUERY = 'copilot.query';
 export const EVENT_COPILOT_UPDATE_SANDBOX_FLOW = 'copilot.update.sandbox.flow';
+
+// panel
+export const PANEL_NONE = 'panel_none';
+export const PANEL_PREVIEW = 'panel_preview';
+export const PANEL_SETTINGS = 'panel_settings';

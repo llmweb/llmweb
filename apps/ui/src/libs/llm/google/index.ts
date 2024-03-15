@@ -1,7 +1,6 @@
-
 import { getApiKey } from "../config";
 
-const { COPILOT_OPENAI_API_URL } = import.meta.env;
+const { COPILOT_GOOGLE_API_URL } = import.meta.env;
 
 export const createModel = (modelId: string, progressCallback) => {
   const initModel = async (
@@ -16,16 +15,20 @@ export const createModel = (modelId: string, progressCallback) => {
       return "API Key is not defined";
     }
 
-    return fetch(`${COPILOT_OPENAI_API_URL}/v1/chat/completions`, {
+    return fetch(`${COPILOT_GOOGLE_API_URL}/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${getApiKey()}`,
+        // Authorization: `Bearer ${getApiKey()}`,
       },
       body: JSON.stringify({
-        model: "gpt-4",
-        max_tokens: 64,
-        ...JSON.parse(query), 
+        contents: [
+          {
+            parts: [{
+                text: query,
+            }]
+          }
+        ]
       }),
     })
       .then((res) => {
@@ -36,7 +39,7 @@ export const createModel = (modelId: string, progressCallback) => {
         }
       })
       .then((data) => {
-        const suggestion = data.choices[0].message.content;
+        const suggestion = data.candidates[0].content.parts[0].text;
         return suggestion;
       })
       .catch((err) => {

@@ -144,7 +144,6 @@ export const MonacoEditor = ({
 
           // Call your AI API with the code to get the suggestion
           suggestionPromise.current = queryCompletionDebounced(
-            // TODO: need to be refactor to remove `_inline`
             category,
             code
           ).then((suggestion: string) => {

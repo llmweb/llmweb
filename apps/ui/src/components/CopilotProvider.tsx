@@ -1,6 +1,5 @@
 import {
   createContext,
-  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -13,11 +12,9 @@ import {
   EVENT_COPILOT_QUERY,
   EVENT_COPILOT_UPDATE,
   EVENT_COPILOT_UPDATE_SANDBOX_FLOW,
-  MODE_MOCK,
 } from "../const";
 
 import { eventBus, Subscription } from "../libs/EventBus";
-import { initLLM, queryOne } from "../libs/llm";
 import { wait } from "../libs/utils";
 import { createPlan, executePlan } from "../libs/flows";
 
@@ -25,16 +22,7 @@ const CopilotContext = createContext(null);
 
 export const CopilotProvider = ({ children }) => {
   const [category, setCategory] = useState("");
-  const [mode, setMode] = useState(MODE_MOCK);
   const flowRef = useRef([]);
-
-  const updateMode = useCallback(
-    (mode) => {
-      initLLM(mode, (msg) => eventBus.publish(EVENT_COPILOT_DEBUG, msg));
-      setMode(mode);
-    },
-    [setMode]
-  );
 
   const copilotSubs = useRef([] as Subscription[]);
 
@@ -66,14 +54,11 @@ export const CopilotProvider = ({ children }) => {
               response,
             });
           } else {
-            // TODO: old flow, needs to be updated
-            const response = await queryOne(query, {
-              category,
-              mode: mode,
-            });
             eventBus.publish(EVENT_COPILOT_UPDATE, {
               category,
-              response,
+              response: {
+                message: `No handler for category: ${category} and query: ${query}`
+              }
             });
           }
         }
@@ -95,13 +80,11 @@ export const CopilotProvider = ({ children }) => {
         eventBus.unsubscribe(sub.topic, sub.handler);
       });
     };
-  }, [mode, category]);
+  }, [category]);
 
   return (
     <CopilotContext.Provider
       value={{
-        mode,
-        setMode: updateMode,
         category,
         setCategory,
       }}

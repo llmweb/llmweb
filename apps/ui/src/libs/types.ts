@@ -42,14 +42,14 @@ export type Primitive = boolean | number | string;
 export type DataPrimitiveStore = Record<string, Primitive>;
 
 export interface Action {
-  (inputs: Data): Promise<Data>;
+  (inputs: Data, context: Data): Promise<Data>;
 }
 
 export interface Step {
   name: string;
   type: string;
   description?: string;
-  source?: {
+  context?: {
     name: string;
     module: string;
   };

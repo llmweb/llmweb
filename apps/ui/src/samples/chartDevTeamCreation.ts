@@ -5,51 +5,53 @@ export const CHART_DEV_TEAM_CREATION = {
 analyze_requirement:
   description: Analyze User Requirement
   type: llm
-  source:
-    name: categorize_input
+  context:
+    entry: categorize_input
     module: custom_prompts
+    toJSON: true
   inputs:
     message: "{{inputs.message}}"
-    toJSON: true
 find_developer:
   description: Find Developer
   type: retrieval
+  context:
+    toJSON: true
   inputs:
     query: "{{analyze_requirement.outputs.category + ' Developer, ' + inputs.message}}"
     category: developer
-    toJSON: true
     count: 1
   deps:
   - analyze_requirement
 find_tester:
   description: Find Tester
   type: retrieval
+  context:
+    toJSON: true
   inputs:
     query: "{{inputs.message}}"
     category: tester
-    toJSON: true
     count: 1
   deps:
   - analyze_requirement
 create_team_step:
   description: Form The Team
   type: llm
-  source:
-    name: create_team_with_suggestion
+  context:
+    entry: create_team_with_suggestion
     module: custom_prompts
+    toJSON: true
   inputs:
     developer: "{{find_developer.outputs[0]}}"
     tester: "{{find_tester.outputs[0]}}"
     requirement: "{{inputs.message}}"
-    toJSON: true
   deps:
   - find_developer
   - find_tester
 merge_output_step:
   description: Merge Output
   type: function
-  source:
-    name: merge_outputs
+  context:
+    entry: merge_outputs
     module: default_functions
   inputs:
     team: "{{create_team_step.outputs}}"
@@ -61,8 +63,8 @@ merge_output_step:
 generate_report_step:
   description: Generate Team Report
   type: function
-  source:
-    name: generate_team_report
+  context:
+    entry: generate_team_report
     module: custom_functions
   inputs:
     team: "{{merge_output_step.outputs.team}}"
@@ -122,7 +124,7 @@ create_team_with_suggestion: |
   USER:
   What is the team name and introduction?
     `.trim(),
-    Contexts: `
+    datasets: `
 developer: [
   '{"name": "Alex Johnson", "gender": "Male", "introduction": "Innovative software developer with a passion for AI.", "age": 29, "role": "Software Developer", "description": "Alex thrives on challenging coding marathons and is a green tea enthusiast."}',
   '{"name": "Daniela Ortiz", "gender": "Female", "introduction": "Frontend developer with a love for responsive design.", "age": 31, "role": "Frontend Developer", "description": "Daniela is a coffee aficionado who codes as beautifully as she paints."}',
