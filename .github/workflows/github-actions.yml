@@ -1,0 +1,24 @@
+name: deploy-website
+on: [push]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '21'
+
+      - name: Installing the necessary Packages
+        run: npm install
+    
+      - name: Creating the prodcution build
+        run: |
+            cd apps/ui
+            npm run build
+            
+      - name: Deploying the production build
+        run: |
+              cd apps/ui
+              npx gh-pages -d dist -r https://${{ secrets.PAT_TOKEN }}@${{ secrets.REPO_URL }} 
+              
