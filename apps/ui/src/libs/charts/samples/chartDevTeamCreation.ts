@@ -1,7 +1,7 @@
 export const CHART_DEV_TEAM_CREATION = {
-    name: "team_creation",
-    description: "Create Development Team Based on Requirement",
-    flows: `
+  uri: "team_creation",
+  name: "Team Creation",
+  flows: `
 analyze_requirement:
   description: Analyze User Requirement
   type: llm
@@ -76,7 +76,7 @@ generate_report_step:
 
 
     `.trim(),
-    prompts: `
+  prompts: `
 categorize_input: |
   SYSTEM:
   You are a helpful assistant that help to identify the requirement to the best category, by rules below:
@@ -124,7 +124,7 @@ create_team_with_suggestion: |
   USER:
   What is the team name and introduction?
     `.trim(),
-    datasets: `
+  datasets: `
 developer: [
   '{"name": "Alex Johnson", "gender": "Male", "introduction": "Innovative software developer with a passion for AI.", "age": 29, "role": "Software Developer", "description": "Alex thrives on challenging coding marathons and is a green tea enthusiast."}',
   '{"name": "Daniela Ortiz", "gender": "Female", "introduction": "Frontend developer with a love for responsive design.", "age": 31, "role": "Frontend Developer", "description": "Daniela is a coffee aficionado who codes as beautifully as she paints."}',
@@ -179,7 +179,7 @@ tester: [
   '{"name": "Emma Laurent", "gender": "Female", "introduction": "UX researcher dedicated to understanding and enhancing user satisfaction.", "age": 33, "role": "UX Researcher", "description": "Emma is a documentary filmmaker, uncovering stories in both user data and real life."}',
 ]
     `.trim(),
-    functions: `
+  functions: `
 import { queryLLM, registerModule } from "default_functions";
 
 const generate_team_report = async ({ requirement, team, developer, tester }) => {
@@ -246,4 +246,4 @@ registerModule("custom_functions", {
   llm_query_by_function_example,
 });
     `.trim(),
-}
+};

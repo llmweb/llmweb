@@ -1,5 +1,5 @@
-name: code_completion
-description: Complete Javascript like Github Copilot.
+uri: code_completion
+name: Complete Javascript like Github Copilot.
 flows: |-
   js_completion:
     description: Complete Code

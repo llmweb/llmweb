@@ -1,23 +1,24 @@
+import { Chart } from "./types";
 
-const CACHE_KEY_CHARTS = "llm-web-charts";
+const CACHE_KEY_CHARTS = "llmweb/charts";
 
 /**
  * 
  * @param topic 
  */
-export const saveChart = async (chartName: string, content: any) => {
+export const saveChart = async (uri: string, content: Chart) => {
   await caches.open(CACHE_KEY_CHARTS).then(function (cache) {
     const response = new Response(JSON.stringify(content), {
       headers: { "Content-Type": "application/json" },
     });
 
-    return cache.put(chartName, response).then(function () {
-      console.log("JSON data saved to cache.");
+    return cache.put(uri, response).then(function () {
+      console.log(`${uri} saved to cache.`);
     });
   });
 };
 
-export const getChart = async (chartName: string): Promise<any> => {
+export const getChart = async (chartName: string): Promise<Chart> => {
   const cache = await caches.open(CACHE_KEY_CHARTS);
   const response = await cache.match(chartName);
 
@@ -30,19 +31,24 @@ export const getChart = async (chartName: string): Promise<any> => {
   return jsonData;
 };
 
-export const getAllCharts = async (): Promise<{[key: string]: any}> => {
+export const deleteChart = async (chartName: string) => {
+  const cache = await caches.open(CACHE_KEY_CHARTS);
+  await cache.delete(chartName);
+}
+
+export const getAllCharts = async (): Promise<Chart[]> => {
   const cache = await caches.open(CACHE_KEY_CHARTS);
   const requests = await cache.keys();
-  const charts: {[key: string]: any} = {};
+  const charts = [] as Chart[];
 
   for (const request of requests) {
     const response = await cache.match(request);
     if (response) {
       const jsonData = await response.json();
-      charts[request.url] = jsonData;
+      charts.push(jsonData);
     }
   }
 
-  console.log("All charts retrieved from cache:", charts);
+  // console.log("All charts retrieved from cache:", charts);
   return charts;
 };

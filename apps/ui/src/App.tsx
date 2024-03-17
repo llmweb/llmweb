@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
-import Page from './Page';
+import { useState, useEffect } from "react";
+import Page from "./Page";
+import { ChakraProvider } from "@chakra-ui/react";
+import { CopilotProvider } from "./components";
 
 export default function App() {
   const [currentPath, setCurrentPath] = useState(window.location.hash);
@@ -9,9 +11,15 @@ export default function App() {
       setCurrentPath(window.location.hash);
     };
 
-    window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
-  return <Page flowChartUri={currentPath.replace(/^#\/?/, '')} />;
+  return (
+    <ChakraProvider>
+      <CopilotProvider>
+        <Page flowChartUri={currentPath.replace(/^#\/?/, "")} />
+      </CopilotProvider>
+    </ChakraProvider>
+  );
 }
