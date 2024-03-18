@@ -1,5 +1,5 @@
 import { registerModule } from "./functions";
-import { queryVectorStore } from "../vectordb";
+import { queryVectorStore } from "../datasets";
 import { evalStringTemplate } from "../utils";
 import { getPromptAsStringTemplate } from "../prompts";
 import { queryModel } from "../llm";

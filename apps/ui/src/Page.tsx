@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import yaml from "js-yaml";
 import { useCopilot } from "./components";
-import { ChatView, FlowChartView, SettingsView } from "./views";
+import { ChatView, FlowChartView, SettingsView, ChartCreationView, LogView } from "./views";
 import { eventBus } from "./libs/EventBus";
 import {
   CATEGORY_JS_COMPLETION,
@@ -31,18 +31,12 @@ import {
 import { Allotment } from "allotment";
 import "allotment/dist/style.css";
 
-import { addDocumentsToVectorStore, resetVectorStore } from "./libs/vectordb";
-
-import { EXAMPLE_CHARTS } from "./libs/charts";
-
 import { registerPrompt } from "./libs/prompts";
-
 import { MaterialIcon, MonacoEditor } from "./components";
+import { addDocumentsToVectorStore, resetVectorStore } from "./libs/datasets";
 import { evalJsBlock, downloadYaml, uploadYaml, debounce } from "./libs/utils";
 import { getFunctions } from "./libs/functions";
-import { LogView } from "./views/LogView";
-import { deleteChart, getAllCharts, saveChart } from "./libs/charts/storage";
-import { ChartCreationView } from "./views/ChartCreationView";
+import { deleteChart, getAllCharts, saveChart, EXAMPLE_CHARTS } from "./libs/charts";
 
 // TODO: needs to load from Retrieval tab too
 
