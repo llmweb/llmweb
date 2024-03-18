@@ -1,5 +1,10 @@
-name: deploy-website
-on: [push]
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # or any branch you want to trigger the deployment
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -9,8 +14,12 @@ jobs:
         with:
           node-version: '21'
 
+      - name: Configure Git
+        run: |
+
+
       - name: Installing the necessary Packages
-        run: npm install
+        run: npm ci
     
       - name: Creating the prodcution build
         run: |
@@ -19,6 +28,9 @@ jobs:
             
       - name: Deploying the production build
         run: |
-              cd apps/ui
-              npx gh-pages -d dist -r https://${{ secrets.PAT_TOKEN }}@${{ secrets.REPO_URL }} 
+          cd apps/ui
+          git config user.name "${{ secrets.ACTION_GIT_USER_NAME }}"
+          git config user.email "${{ secrets.ACTION_GIT_USER_EMAIL }}"
+          npx gh-pages -d dist -r https://${{ secrets.ACTION_PAT_TOKEN }}@github.com/llmweb/llmweb.github.io.git -t
               
+
