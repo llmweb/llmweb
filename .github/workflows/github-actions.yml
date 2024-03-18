@@ -11,8 +11,8 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config --local user.email "{{ secrets.EMAIL }}"
-          git config --local user.name "{{ secrets.USERNAME }}"
+          git config --local user.email "${{ secrets.ACTION_GIT_USER_EMAIL }}"
+          git config --local user.name "${{ secrets.ACTION_GIT_USER_NAME }}"
 
       - name: Installing the necessary Packages
         run: npm install
@@ -25,5 +25,5 @@ jobs:
       - name: Deploying the production build
         run: |
               cd apps/ui
-              npx gh-pages -d dist -r https://${{ secrets.PAT_TOKEN }}@${{ secrets.REPO_URL }} 
+              npx gh-pages -d dist -r https://${{ secrets.ACTION_PAT_TOKEN }}@github.com/llmweb/llmweb.github.io
               
