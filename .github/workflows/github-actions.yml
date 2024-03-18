@@ -9,6 +9,11 @@ jobs:
         with:
           node-version: '21'
 
+      - name: Configure Git
+        run: |
+          git config --local user.email "{{ secrets.EMAIL }}"
+          git config --local user.name "{{ secrets.USERNAME }}"
+
       - name: Installing the necessary Packages
         run: npm install
     
