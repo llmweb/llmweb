@@ -101,8 +101,8 @@ export const ChatView = () => {
     });
   };
 
-  useHotkeys("mod+enter,ctrl+enter,esc", () => sendMessage(message), {
-    enableOnFormTags: ["INPUT", "TEXTAREA", "SELECT"],
+  useHotkeys("mod+enter,ctrl+enter", () => sendMessage(message), {
+    enableOnFormTags: ["TEXTAREA"],
   });
 
   useEffect(() => {
@@ -117,12 +117,13 @@ export const ChatView = () => {
             {
               role: "Assistant",
               message:
-                response.outputs?.message || `
+                response.outputs?.message ||
+                `
 - No message attribute in output, will just stringify the output.
 \`\`\`json
 ${JSON.stringify(response.outputs, null, 2)}
 \`\`\`
-                `
+                `,
             },
           ]);
 
@@ -142,51 +143,57 @@ ${JSON.stringify(response.outputs, null, 2)}
   }, []);
 
   return (
-      <Grid
-        style={{ height: "100%" }}
-        templateAreas={`"main" "footer"`}
-        gridTemplateRows={`auto ${messageStyle.height}`}
-        fontWeight={"normal"}
-        gap="1"
+    <Grid
+      style={{ height: "100%" }}
+      templateAreas={`"main" "footer"`}
+      gridTemplateRows={`auto ${messageStyle.height}`}
+      fontWeight={"normal"}
+      gap="1"
+    >
+      <GridItem
+        pl="2"
+        area={"main"}
+        style={{
+          overflowY: "scroll",
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+        ref={conversationDomRef}
       >
-        <GridItem
-          pl="2"
-          area={"main"}
-          style={{
-            overflowY: "scroll",
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-          }}
-          ref={conversationDomRef}
-        >
-          {conversations.map((conversation, index) => {
-            return (
-              <Card
-                key={index}
-                style={{
-                  marginLeft: 20,
-                  marginRight: 20,
-                  marginBottom: 10,
-                }}
-                variant={conversation.role === "User" ? "outline" : "filled"}
-              >
-                <CardBody width="100%">
-                  <Flex flex="2" gap="2" paddingBottom={2} alignItems="center" flexWrap="wrap">
-                    <Avatar
-                      name={conversation.role}
-                      size={"sm"}
-                      /*src="https://bit.ly/sage-adebayo"*/
-                    />
-                    <Heading size="md">{conversation.role}</Heading>
-                  </Flex>
-                  <div
-                    className="markdown-body"
-                    dangerouslySetInnerHTML={{
-                      __html: marked.parse(conversation.message),
-                    }}
+        {conversations.map((conversation, index) => {
+          return (
+            <Card
+              key={index}
+              style={{
+                marginLeft: 20,
+                marginRight: 20,
+                marginBottom: 10,
+              }}
+              variant={conversation.role === "User" ? "outline" : "filled"}
+            >
+              <CardBody width="100%">
+                <Flex
+                  flex="2"
+                  gap="2"
+                  paddingBottom={2}
+                  alignItems="center"
+                  flexWrap="wrap"
+                >
+                  <Avatar
+                    name={conversation.role}
+                    size={"sm"}
+                    /*src="https://bit.ly/sage-adebayo"*/
                   />
-                </CardBody>
-                {/** 
+                  <Heading size="md">{conversation.role}</Heading>
+                </Flex>
+                <div
+                  className="markdown-body"
+                  dangerouslySetInnerHTML={{
+                    __html: marked.parse(conversation.message),
+                  }}
+                />
+              </CardBody>
+              {/** 
             <CardFooter
               justify="space-between"
               flexWrap="wrap"
@@ -201,53 +208,53 @@ ${JSON.stringify(response.outputs, null, 2)}
               </Button>
             </CardFooter>
             */}
-              </Card>
-            );
-          })}
-        </GridItem>
-        <GridItem pl="2" area={"footer"} paddingLeft={0}>
-          <Box
+            </Card>
+          );
+        })}
+      </GridItem>
+      <GridItem pl="2" area={"footer"} paddingLeft={0}>
+        <Box
+          style={{
+            width: "100%",
+            position: "absolute",
+            paddingLeft: "25px",
+            paddingRight: "20px",
+            bottom: "10px",
+            height: messageStyle.height,
+          }}
+        >
+          <Textarea
             style={{
-              width: "100%",
-              position: "absolute",
-              paddingLeft: "25px",
-              paddingRight: "20px",
-              bottom: "10px",
-              height: messageStyle.height,
+              resize: "none",
+              paddingRight: "55px",
+              minHeight: messageStyle.height,
+              ...messageStyle,
             }}
-          >
-            <Textarea
-              style={{
-                resize: "none",
-                paddingRight: "55px",
-                minHeight: messageStyle.height,
-                ...messageStyle,
-              }}
-              isReadOnly={loading}
-              value={message}
-              placeholder="Type input here, press Ctrl+Enter or click the button to send."
-              onChange={(e) => {
-                setMessage(e.target.value);
-                autoGrowth(e);
-              }}
-              zIndex={100}
-            />
-            <IconButton
-              style={{
-                position: "absolute",
-                right: "30px",
-                bottom: "10px",
-                zIndex: 200,
-                cursor: "pointer",
-              }}
-              size={"md"}
-              aria-label="Send"
-              isLoading={loading}
-              onClick={() => sendMessage(message)}
-              icon={<ArrowUpIcon />}
-            />
-          </Box>
-        </GridItem>
-      </Grid>
+            isReadOnly={loading}
+            value={message}
+            placeholder="Type input here, press Ctrl+Enter or click the button to send."
+            onChange={(e) => {
+              setMessage(e.target.value);
+              autoGrowth(e);
+            }}
+            zIndex={100}
+          />
+          <IconButton
+            style={{
+              position: "absolute",
+              right: "30px",
+              bottom: "10px",
+              zIndex: 200,
+              cursor: "pointer",
+            }}
+            size={"md"}
+            aria-label="Send"
+            isLoading={loading}
+            onClick={() => sendMessage(message)}
+            icon={<ArrowUpIcon />}
+          />
+        </Box>
+      </GridItem>
+    </Grid>
   );
 };

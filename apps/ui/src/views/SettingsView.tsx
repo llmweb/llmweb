@@ -7,6 +7,7 @@ import {
   InputGroup,
   FormControl,
   Box,
+  Checkbox,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import {
@@ -15,6 +16,7 @@ import {
   setLangModel,
   getModels
 } from '../libs/llm';
+import { useCopilot } from "../components";
 
 const MODELS = getModels();
 
@@ -22,6 +24,7 @@ export const SettingsView = () => {
   const [showPass, setShowPass] = useState(false);
   const [key, setKey] = useState(getApiKey());
   const [mode, setMode] = useState(MODELS[0].key);
+  const { autoSave, setAutoSave } = useCopilot();
 
   return (
     <Box p={3}>
@@ -66,6 +69,7 @@ export const SettingsView = () => {
             </Button>
           </InputRightElement>
         </InputGroup>
+        <Checkbox pt={3} colorScheme='yellow' isChecked={autoSave} onChange={() => setAutoSave(!autoSave)} >Auto Save</Checkbox>
       </FormControl>
     </Box>
   );

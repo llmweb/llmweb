@@ -1,0 +1,6 @@
+uri: code_completion
+name: Complete Javascript like Github Copilot.
+flows: ''
+prompts: ''
+datasets: ''
+functions: ''

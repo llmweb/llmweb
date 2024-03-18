@@ -19,11 +19,10 @@ import "monaco-editor/esm/vs/language/typescript/monaco.contribution";
 import "monaco-editor/esm/vs/language/json/monaco.contribution";
 import "monaco-editor/esm/vs/language/css/monaco.contribution";
 import "monaco-editor/esm/vs/language/html/monaco.contribution";
-import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution'
+import "monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution";
 
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import { useCopilot } from ".";
-
 
 interface MonacoEditorProps {
   /* language type */
@@ -45,25 +44,27 @@ const queryCompletion = async (category, query) => {
       response =
         response?.outputs?.message ||
         (response?.outputs ? JSON.stringify(response.outputs, null, 2) : "") ||
-        response;
+        "";
 
-      const lastLine = query.split("\n").pop() || "";
-      const lastWord = lastLine.split(/\b/).pop() || "";
-      if (response.startsWith("```")) {
-        const responseInLines = response.split("\n");
-        response = responseInLines
-          .slice(1, responseInLines.length - 1)
-          .join("\n");
-      } else if (response.startsWith(query)) {
-        response = response.slice(query.length);
-        response = lastWord + response;
-      } else if (response.startsWith(lastLine)) {
-        response = response.slice(lastLine.length);
-        response = lastWord + response;
-      } else if (response.startsWith(lastLine)) {
-        // do nothing
-      } else if (!response.startsWith(lastWord)) {
-        response = lastWord + response;
+      if (response) {
+        const lastLine = query.split("\n").pop() || "";
+        const lastWord = lastLine.split(/\b/).pop() || "";
+        if (response.startsWith("```")) {
+          const responseInLines = response.split("\n");
+          response = responseInLines
+            .slice(1, responseInLines.length - 1)
+            .join("\n");
+        } else if (response.startsWith(query)) {
+          response = response.slice(query.length);
+          response = lastWord + response;
+        } else if (response.startsWith(lastLine)) {
+          response = response.slice(lastLine.length);
+          response = lastWord + response;
+        } else if (response.startsWith(lastLine)) {
+          // do nothing
+        } else if (!response.startsWith(lastWord)) {
+          response = lastWord + response;
+        }
       }
       resolve(response);
     });
@@ -83,6 +84,7 @@ export const MonacoEditor = ({
 }: MonacoEditorProps) => {
   const domRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const prevValueRef = useRef(text);
   const suggestionPromise = useRef(
     Promise.resolve({
       items: [{ insertText: "" }],
@@ -99,6 +101,7 @@ export const MonacoEditor = ({
     if (editorRef.current && editorRef.current.getValue() !== text) {
       editorRef.current.setValue(text);
     }
+    prevValueRef.current = text;
   }, [text]);
 
   useEffect(() => {
@@ -138,9 +141,12 @@ export const MonacoEditor = ({
         // NOTE: if the text is passed from parent, we should not update it
         // we have 2 side effects here:
         // 1. The paste is not handled properly here
-        if (e.changes[0].text !== code) {
+        if (prevValueRef.current !== code) {
           // update to parent
-          onChange && onChange(text);
+          onChange && onChange(code);
+
+          // update the ref
+          prevValueRef.current = code;
 
           // Call your AI API with the code to get the suggestion
           suggestionPromise.current = queryCompletionDebounced(

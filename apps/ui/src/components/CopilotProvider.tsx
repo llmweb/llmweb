@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 import {
   CATEGORY_SANDBOX,
@@ -22,6 +16,7 @@ const CopilotContext = createContext(null);
 
 export const CopilotProvider = ({ children }) => {
   const [category, setCategory] = useState("");
+  const [autoSave, setAutoSave] = useState(false);
   const flowRef = useRef([]);
 
   const copilotSubs = useRef([] as Subscription[]);
@@ -57,8 +52,12 @@ export const CopilotProvider = ({ children }) => {
             eventBus.publish(EVENT_COPILOT_UPDATE, {
               category,
               response: {
-                message: `No handler for category: ${category} and query: ${query}`
-              }
+                /*
+                outputs: {
+                  message: `No handler for category: ${category} and query: ${query}`,
+                },
+                */
+              },
             });
           }
         }
@@ -87,6 +86,8 @@ export const CopilotProvider = ({ children }) => {
       value={{
         category,
         setCategory,
+        autoSave,
+        setAutoSave,
       }}
     >
       {children}

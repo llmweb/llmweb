@@ -1,5 +1,5 @@
-name: team_creation
-description: Create Development Team Based on Requirement
+uri: team_creation
+name: Create Development Team Based on Requirement
 flows: |-
   analyze_requirement:
     description: Analyze User Requirement
