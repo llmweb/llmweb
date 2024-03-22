@@ -10,7 +10,7 @@ export const CHART_DEV_TEAM_CREATION = {
     module: custom_prompts
     toJSON: true
   inputs:
-    message: "{{inputs.message}}"
+    message: {{inputs.message}}
 
 - step: find_developer
   name: Find Developer
@@ -30,7 +30,7 @@ export const CHART_DEV_TEAM_CREATION = {
   context:
     toJSON: true
   inputs:
-    query: "{{inputs.message}}"
+    query: {{inputs.message}}
     category: tester
     count: 1
   deps:
@@ -46,7 +46,7 @@ export const CHART_DEV_TEAM_CREATION = {
   inputs:
     developer: "{{find_developer.outputs[0]}}"
     tester: "{{find_tester.outputs[0]}}"
-    requirement: "{{inputs.message}}"
+    requirement: {{inputs.message}}
   deps:
   - find_developer
   - find_tester
@@ -58,8 +58,8 @@ export const CHART_DEV_TEAM_CREATION = {
     entry: merge_outputs
     module: default_functions
   inputs:
-    team: "{{create_team_step.outputs}}"
-    requirement: "{{inputs.message}}"
+    team: {{create_team_step.outputs}}
+    requirement: {{inputs.message}}
     developer: "{{find_developer.outputs[0]}}"
     tester: "{{find_tester.outputs[0]}}"
   deps:
@@ -72,10 +72,10 @@ export const CHART_DEV_TEAM_CREATION = {
     entry: generate_team_report
     module: custom_functions
   inputs:
-    team: "{{merge_output_step.outputs.team}}"
-    tester: "{{merge_output_step.outputs.tester}}"
-    developer: "{{merge_output_step.outputs.developer}}"
-    requirement: "{{merge_output_step.outputs.requirement}}"
+    team: {{merge_output_step.outputs.team}}
+    tester: {{merge_output_step.outputs.tester}}
+    developer: {{merge_output_step.outputs.developer}}
+    requirement: {{merge_output_step.outputs.requirement}}
   deps:
   - merge_output_step
     `.trim(),

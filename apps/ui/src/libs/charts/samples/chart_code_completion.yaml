@@ -8,7 +8,7 @@ flows: |-
       name: js_completion
       module: custom_prompts
     inputs:
-      message: "{{inputs.message}}"
+      message: {{inputs.message}}
 prompts: |-
   js_completion: |-
     SYSTEM:
