@@ -148,9 +148,9 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
 
   useEffect(() => {
     try {
-      const res = (yaml.load(chart.prompts) as Record<string, string>) || {};
+      const res = (yaml.load(chart.prompts) as Record<string, string>);
       if (res != null) {
-        registerPrompt("custom_prompts", res);
+        registerPrompt(chart.uri, res);
       }
     } catch (e) {
       console.error(e);

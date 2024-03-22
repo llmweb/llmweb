@@ -5,8 +5,7 @@ flows: |-
     name: Analyze User Requirement
     type: llm
     context:
-      module: custom_prompts
-      entry: categorize_input
+      source: categorize_input
       toJSON: true
     inputs:
       message: {{inputs.message}}
@@ -39,8 +38,7 @@ flows: |-
     name: Form The Team
     type: llm
     context:
-      module: custom_prompts
-      entry: create_team_with_suggestion
+      source: create_team_with_suggestion
       toJSON: true
     inputs:
       developer: "{{find_developer.outputs[0]}}"

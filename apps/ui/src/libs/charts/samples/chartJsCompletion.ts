@@ -6,8 +6,7 @@ export const CHART_JS_COMPLETION = {
   name: Code Completion
   type: llm
   context:
-    entry: js_completion
-    module: custom_prompts
+    source: js_completion
   inputs:
     message: {{inputs.message}}
     `.trim(),

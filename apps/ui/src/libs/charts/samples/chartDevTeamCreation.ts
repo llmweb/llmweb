@@ -6,8 +6,7 @@ export const CHART_DEV_TEAM_CREATION = {
   name: Analyze User Requirement
   type: llm
   context:
-    entry: categorize_input
-    module: custom_prompts
+    source: categorize_input
     toJSON: true
   inputs:
     message: {{inputs.message}}
@@ -40,8 +39,7 @@ export const CHART_DEV_TEAM_CREATION = {
   name: Form The Team
   type: llm
   context:
-    entry: create_team_with_suggestion
-    module: custom_prompts
+    source: create_team_with_suggestion
     toJSON: true
   inputs:
     developer: "{{find_developer.outputs[0]}}"
