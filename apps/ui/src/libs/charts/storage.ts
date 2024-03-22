@@ -3,24 +3,14 @@ import { Chart } from "./types";
 const CACHE_KEY_CHARTS = "llmweb/charts";
 
 /**
+ * Get a chart from the cache
  * 
- * @param topic 
+ * @param chartUri URI of the chart
+ * @returns chart object
  */
-export const saveChart = async (uri: string, content: Chart) => {
-  await caches.open(CACHE_KEY_CHARTS).then(function (cache) {
-    const response = new Response(JSON.stringify(content), {
-      headers: { "Content-Type": "application/json" },
-    });
-
-    return cache.put(uri, response).then(function () {
-      console.log(`${uri} saved to cache.`);
-    });
-  });
-};
-
-export const getChart = async (chartName: string): Promise<Chart> => {
+export const getChart = async (chartUri: string): Promise<Chart> => {
   const cache = await caches.open(CACHE_KEY_CHARTS);
-  const response = await cache.match(chartName);
+  const response = await cache.match(chartUri);
 
   if (!response) {
     throw new Error('No data found in cache for this chartName');
@@ -31,11 +21,11 @@ export const getChart = async (chartName: string): Promise<Chart> => {
   return jsonData;
 };
 
-export const deleteChart = async (chartName: string) => {
-  const cache = await caches.open(CACHE_KEY_CHARTS);
-  await cache.delete(chartName);
-}
-
+/**
+ * Get all charts from the cache
+ * 
+ * @returns all charts from the cache
+ */
 export const getAllCharts = async (): Promise<Chart[]> => {
   const cache = await caches.open(CACHE_KEY_CHARTS);
   const requests = await cache.keys();
@@ -49,6 +39,34 @@ export const getAllCharts = async (): Promise<Chart[]> => {
     }
   }
 
-  // console.log("All charts retrieved from cache:", charts);
   return charts;
 };
+
+/**
+ * Save a chart to the cache
+ * 
+ * @param chartUri URI of the chart 
+ * @param chart chart object 
+ */
+export const saveChart = async ( chart: Chart) => {
+  await caches.open(CACHE_KEY_CHARTS).then(function (cache) {
+    const response = new Response(JSON.stringify(chart), {
+      headers: { "Content-Type": "application/json" },
+    });
+
+    return cache.put(chart.uri, response).then(function () {
+      console.log(`${chart.uri} saved to cache.`);
+    });
+  });
+};
+
+/**
+ * Delete a chart from the cache
+ * 
+ * @param chartUri URI of the chart 
+ */
+export const deleteChart = async (chartUri: string) => {
+  const cache = await caches.open(CACHE_KEY_CHARTS);
+  await cache.delete(chartUri);
+}
+

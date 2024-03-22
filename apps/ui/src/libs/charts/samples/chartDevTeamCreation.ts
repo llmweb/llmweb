@@ -2,8 +2,8 @@ export const CHART_DEV_TEAM_CREATION = {
   uri: "team_creation",
   name: "Team Creation",
   flows: `
-analyze_requirement:
-  description: Analyze User Requirement
+- step: analyze_requirement
+  name: Analyze User Requirement
   type: llm
   context:
     entry: categorize_input
@@ -11,8 +11,9 @@ analyze_requirement:
     toJSON: true
   inputs:
     message: "{{inputs.message}}"
-find_developer:
-  description: Find Developer
+
+- step: find_developer
+  name: Find Developer
   type: retrieval
   context:
     toJSON: true
@@ -22,8 +23,9 @@ find_developer:
     count: 1
   deps:
   - analyze_requirement
-find_tester:
-  description: Find Tester
+
+- step: find_tester
+  name: Find Tester
   type: retrieval
   context:
     toJSON: true
@@ -33,8 +35,9 @@ find_tester:
     count: 1
   deps:
   - analyze_requirement
-create_team_step:
-  description: Form The Team
+
+- step: create_team_step
+  name: Form The Team
   type: llm
   context:
     entry: create_team_with_suggestion
@@ -47,8 +50,9 @@ create_team_step:
   deps:
   - find_developer
   - find_tester
-merge_output_step:
-  description: Merge Output
+
+- step: merge_output_step
+  name: Merge Output
   type: function
   context:
     entry: merge_outputs
@@ -60,8 +64,9 @@ merge_output_step:
     tester: "{{find_tester.outputs[0]}}"
   deps:
   - create_team_step
-generate_report_step:
-  description: Generate Team Report
+
+- step: generate_report_step
+  name: Generate Team Report
   type: function
   context:
     entry: generate_team_report
@@ -73,8 +78,6 @@ generate_report_step:
     requirement: "{{merge_output_step.outputs.requirement}}"
   deps:
   - merge_output_step
-
-
     `.trim(),
   prompts: `
 categorize_input: |

@@ -1,8 +1,8 @@
 uri: code_completion
-name: Complete Javascript like Github Copilot.
+name: Code Completion
 flows: |-
-  js_completion:
-    description: Complete Code
+  - step: js_completion
+    name: Code Completion
     type: llm
     context:
       name: js_completion
@@ -10,7 +10,7 @@ flows: |-
     inputs:
       message: "{{inputs.message}}"
 prompts: |-
-  js_completion: |
+  js_completion: |-
     SYSTEM:
     You are a helpful code assistant. Your task is to complete the javascript code from input. You should return the code block only with no explanation. 
 

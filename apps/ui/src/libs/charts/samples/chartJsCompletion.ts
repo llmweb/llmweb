@@ -2,8 +2,8 @@ export const CHART_JS_COMPLETION = {
   uri: "code_completion",
   name: "Code Completion",
   flows: `
-js_completion:
-  description: Complete Code
+- step: js_completion
+  name: Code Completion
   type: llm
   context:
     entry: js_completion

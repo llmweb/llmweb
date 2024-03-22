@@ -37,8 +37,7 @@ import { addDocumentsToVectorStore, resetVectorStore } from "./libs/datasets";
 import { evalJsBlock, downloadYaml, uploadYaml, debounce } from "./libs/utils";
 import { getFunctions } from "./libs/functions";
 import { deleteChart, getAllCharts, saveChart, EXAMPLE_CHARTS } from "./libs/charts";
-
-// TODO: needs to load from Retrieval tab too
+import { Flow } from "./libs/types";
 
 const DEFAULT_CHART = EXAMPLE_CHARTS[0];
 
@@ -122,14 +121,16 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
 
   useEffect(() => {
     try {
-      const flowDef = yaml.load(chart.flows) || {};
+      const flows = yaml.load(chart.flows) as Flow || [];
+      /*
       const flow = Object.entries(flowDef).map(([name, value]) => ({
         name,
         ...(value as Record<string, unknown>),
       }));
-      if (flow.length > 0) {
-        setFlow(flow);
-        eventBus.publish(EVENT_COPILOT_UPDATE_SANDBOX_FLOW, flow);
+      */
+      if (flows.length > 0) {
+        setFlow(flows);
+        eventBus.publish(EVENT_COPILOT_UPDATE_SANDBOX_FLOW, flows);
       }
     } catch (e) {
       console.error(e);
@@ -331,7 +332,7 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
                         marginLeft={2}
                         onClick={async () => {
                           const chart = (await uploadYaml()) as any;
-                          await saveChart(chart.uri, chart);
+                          await saveChart(chart);
                           setCharts((charts) => [...charts, chart]);
                           // TODO: temporary solution, need to find a way to update the url
                           window.location.hash = `#/${chart.uri}`;
@@ -346,7 +347,7 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
                         icon={<MaterialIcon icon="save" />}
                         marginLeft={2}
                         onClick={() => {
-                          saveChart(chart.uri, chart);
+                          saveChart(chart);
                         }}
                       />
                       <IconButton
