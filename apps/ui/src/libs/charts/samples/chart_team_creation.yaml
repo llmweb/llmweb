@@ -8,7 +8,7 @@ flows: |-
       source: categorize_input
       toJSON: true
     inputs:
-      message: {{inputs.message}}
+      message: "{{inputs.message}}""
   
   - step: find_developer
     name: Find Developer

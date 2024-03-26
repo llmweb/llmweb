@@ -102,12 +102,12 @@ const applyStep = async (step, scope) => {
     inputs = evalDataDefinition(step.inputs, scope);
     context = step.context;
   } else {
-    const { entry, ...contextVal } = step.type === "retrieval" ? {
+    const contextTemp = step.type === "retrieval" ? {
       ...step.context,
-      entry: "retrieveContents",
+      source: "retrieveContents",
     } :step.context;
-    source = entry;
-    context = contextVal;
+    context = contextTemp;
+    source = contextTemp.source;
 
     inputs = evalDataDefinition(step.inputs, scope);
   }
@@ -116,7 +116,7 @@ const applyStep = async (step, scope) => {
 
   const outputs = await actionFn(inputs, context);
 
-  return { [step.name]: { inputs, outputs } };
+  return { [step.step]: { inputs, outputs } };
 };
 
 export const createPlan = (flow: Flow): Plan => {
@@ -170,7 +170,7 @@ export const executePlan = async (plan: Plan, inputs: Data): Promise<Data> => {
             ...curr,
           };
         }, scope),
-        lastStep: batch[batch.length - 1].name,
+        lastStep: batch[batch.length - 1].step,
       };
     },
     // init value
