@@ -4,8 +4,7 @@ flows: |-
   - step: js_completion
     name: Code Completion
     type: llm
-    context:
-      source: js_completion
+    source: js_completion
     inputs:
       message: "{{inputs.message}}"
 prompts: |-

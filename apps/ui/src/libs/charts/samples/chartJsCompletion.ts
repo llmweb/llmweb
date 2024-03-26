@@ -5,8 +5,7 @@ export const CHART_JS_COMPLETION = {
 - step: js_completion
   name: Code Completion
   type: llm
-  context:
-    source: js_completion
+  source: js_completion
   inputs:
     message: "{{inputs.message}}"
     `.trim(),

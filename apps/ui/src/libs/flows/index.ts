@@ -100,7 +100,10 @@ const applyStep = async (step, scope) => {
     source = "queryByPromptTemplate";
 
     inputs = evalDataDefinition(step.inputs, scope);
-    context = step.context;
+    context = {
+      source: step.source,
+      toJSON: step.toJSON,
+    };
   } else {
     const contextTemp = step.type === "retrieval" ? {
       ...step.context,
