@@ -46,9 +46,9 @@ export interface Action {
 }
 
 export interface Step {
-  name: string;
+  step: string;
   type: string;
-  description?: string;
+  name?: string;
   context?: {
     name: string;
     module: string;

@@ -3,8 +3,8 @@ import { Value, Data, Flow, Action, Plan } from "../types";
 import { cloneJson, getValue, parseExpr } from "../utils";
 
 const STEP_USER_INPUT = {
-  name: "user_input",
-  description: "Question from User",
+  step: "user_input",
+  name: "Question from User",
   type: "input",
 };
 
@@ -94,32 +94,34 @@ export const evalOutputData = (
 
 const applyStep = async (step, scope) => {
   let inputs = {};
-  let entryName = '', moduleName = '', context = {};
+  let source = '', context = {};
 
   if (step.type === "llm") {
-    moduleName = "default_functions";
-    entryName = "queryByPromptTemplate";
+    source = "queryByPromptTemplate";
 
     inputs = evalDataDefinition(step.inputs, scope);
-    context = step.context;
+    context = {
+      source: step.source,
+      toJSON: step.toJSON,
+    };
+  } else if (step.type === "retrieval") {
+    source = "retrieveContents";
+    inputs = evalDataDefinition(step.inputs, scope);
+    context = {
+      toJSON: step.toJSON,
+    }
+    // function
   } else {
-    const { entry, module, ...contextVal } = step.type === "retrieval" ? {
-      ...step.context,
-      module: "default_functions",
-      entry: "retrieveContents",
-    } :step.context;
-    entryName = entry;
-    moduleName = module;
-    context = contextVal;
-
+    source = step.source;
     inputs = evalDataDefinition(step.inputs, scope);
+    context = {};
   }
 
-  const actionFn = getFunction(moduleName, entryName);
+  const actionFn = getFunction(source);
 
   const outputs = await actionFn(inputs, context);
 
-  return { [step.name]: { inputs, outputs } };
+  return { [step.step]: { inputs, outputs } };
 };
 
 export const createPlan = (flow: Flow): Plan => {
@@ -130,10 +132,10 @@ export const createPlan = (flow: Flow): Plan => {
       if (deps.length > 0) {
         batch.push(Object.values(curr));
         curr = {
-          [step.name]: step,
+          [step.step]: step,
         };
       } else {
-        curr[step.name] = step;
+        curr[step.step] = step;
       }
 
       // wrap up the last one
@@ -173,7 +175,7 @@ export const executePlan = async (plan: Plan, inputs: Data): Promise<Data> => {
             ...curr,
           };
         }, scope),
-        lastStep: batch[batch.length - 1].name,
+        lastStep: batch[batch.length - 1].step,
       };
     },
     // init value
@@ -206,7 +208,7 @@ export const createMermaidContent = (flow: Flow): string => {
   const stepMap = flow.reduce((prev, step) => {
     return {
       ...prev,
-      [step.name]: step,
+      [step.step]: step,
     };
   }, {});
 
@@ -218,9 +220,9 @@ export const createMermaidContent = (flow: Flow): string => {
       .filter(Boolean)
       .map(
         (prevStep) =>
-          `${prevStep.name}(${prevStep.description || prevStep.name}):::${
+          `${prevStep.step}(${prevStep.name || prevStep.step}):::${
             prevStep.type
-          } --> ${step.name}(${step.description || step.name}):::${
+          } --> ${step.step}(${step.name || step.step}):::${
             step.type
           }`
       )

@@ -2,44 +2,41 @@ export const CHART_DEV_TEAM_CREATION = {
   uri: "team_creation",
   name: "Team Creation",
   flows: `
-analyze_requirement:
-  description: Analyze User Requirement
+- step: analyze_requirement
+  name: Analyze User Requirement
   type: llm
-  context:
-    entry: categorize_input
-    module: custom_prompts
-    toJSON: true
+  source: categorize_input
+  toJSON: true
   inputs:
     message: "{{inputs.message}}"
-find_developer:
-  description: Find Developer
+
+- step: find_developer
+  name: Find Developer
   type: retrieval
-  context:
-    toJSON: true
+  toJSON: true
   inputs:
     query: "{{analyze_requirement.outputs.category + ' Developer, ' + inputs.message}}"
     category: developer
     count: 1
   deps:
   - analyze_requirement
-find_tester:
-  description: Find Tester
+
+- step: find_tester
+  name: Find Tester
   type: retrieval
-  context:
-    toJSON: true
+  toJSON: true
   inputs:
     query: "{{inputs.message}}"
     category: tester
     count: 1
   deps:
   - analyze_requirement
-create_team_step:
-  description: Form The Team
+
+- step: create_team_step
+  name: Form The Team
   type: llm
-  context:
-    entry: create_team_with_suggestion
-    module: custom_prompts
-    toJSON: true
+  source: create_team_with_suggestion
+  toJSON: true
   inputs:
     developer: "{{find_developer.outputs[0]}}"
     tester: "{{find_tester.outputs[0]}}"
@@ -47,12 +44,11 @@ create_team_step:
   deps:
   - find_developer
   - find_tester
-merge_output_step:
-  description: Merge Output
+
+- step: merge_output_step
+  name: Merge Output
   type: function
-  context:
-    entry: merge_outputs
-    module: default_functions
+  source: merge_outputs
   inputs:
     team: "{{create_team_step.outputs}}"
     requirement: "{{inputs.message}}"
@@ -60,12 +56,11 @@ merge_output_step:
     tester: "{{find_tester.outputs[0]}}"
   deps:
   - create_team_step
-generate_report_step:
-  description: Generate Team Report
+
+- step: generate_report_step
+  name: Generate Team Report
   type: function
-  context:
-    entry: generate_team_report
-    module: custom_functions
+  source: generate_team_report
   inputs:
     team: "{{merge_output_step.outputs.team}}"
     tester: "{{merge_output_step.outputs.tester}}"
@@ -73,8 +68,6 @@ generate_report_step:
     requirement: "{{merge_output_step.outputs.requirement}}"
   deps:
   - merge_output_step
-
-
     `.trim(),
   prompts: `
 categorize_input: |

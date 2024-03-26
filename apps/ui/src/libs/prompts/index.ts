@@ -1,3 +1,4 @@
+const PROMPT_NAME = 'custom_prompts';
 
 // prompt template modules
 const _prompts = {} as Record<string, Record<string, string>>;
@@ -8,8 +9,8 @@ const _prompts = {} as Record<string, Record<string, string>>;
  * @param moduleName name of the module
  * @param content prompt template as map
  */
-export const registerPrompt = (moduleName: string, content: Record<string, string>) => {
-    _prompts[moduleName] = content;
+export const registerPrompt = (key: string, content: Record<string, string>) => {
+    _prompts[PROMPT_NAME] = content;
 };
 
 
@@ -19,10 +20,10 @@ export const registerPrompt = (moduleName: string, content: Record<string, strin
  * @param moduleName name of the module
  * @param promptName name of the function
  */
-const getPrompt = (moduleName: string, promptName: string) => {
-    return (_prompts[moduleName] || {})[promptName] || '' as string;
+const getPrompt = (source: string) => {
+    return _prompts[PROMPT_NAME][source] || '' as string;
 };
 
-export const getPromptAsStringTemplate = (moduleName: string, promptName: string) => {
-    return getPrompt(moduleName, promptName).trim().replace(/{{/g,'${').replace(/}}/g,'}');
+export const getPromptAsStringTemplate = (source: string) => {
+    return getPrompt(source).trim().replace(/{{/g,'${').replace(/}}/g,'}');
 }

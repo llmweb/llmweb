@@ -1,5 +1,5 @@
 import { registerModule } from "./functions";
-import { queryVectorStore } from "../vectordb";
+import { queryVectorStore } from "../datasets";
 import { evalStringTemplate } from "../utils";
 import { getPromptAsStringTemplate } from "../prompts";
 import { queryModel } from "../llm";
@@ -16,8 +16,8 @@ const retrieveContents = async ({ query, category, count }, { toJSON }) => {
   return result;
 };
 
-const queryByPromptTemplate = async ( promptInputs, { module, entry, toJSON }) => {
-  const promptTemplate = getPromptAsStringTemplate(module, entry);
+const queryByPromptTemplate = async ( promptInputs, { source, toJSON }) => {
+  const promptTemplate = getPromptAsStringTemplate(source);
   const query = evalStringTemplate(
     promptTemplate,
     promptInputs,
