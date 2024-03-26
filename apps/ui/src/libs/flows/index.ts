@@ -112,11 +112,9 @@ const applyStep = async (step, scope) => {
     }
     // function
   } else {
-    const contextTemp = step.context;
-    context = contextTemp;
-    source = contextTemp.source;
-
+    source = step.source;
     inputs = evalDataDefinition(step.inputs, scope);
+    context = {};
   }
 
   const actionFn = getFunction(source);

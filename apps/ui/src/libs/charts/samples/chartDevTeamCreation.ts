@@ -48,8 +48,7 @@ export const CHART_DEV_TEAM_CREATION = {
 - step: merge_output_step
   name: Merge Output
   type: function
-  context:
-    source: merge_outputs
+  source: merge_outputs
   inputs:
     team: "{{create_team_step.outputs}}"
     requirement: "{{inputs.message}}"
@@ -61,8 +60,7 @@ export const CHART_DEV_TEAM_CREATION = {
 - step: generate_report_step
   name: Generate Team Report
   type: function
-  context:
-    source: generate_team_report
+  source: generate_team_report
   inputs:
     team: "{{merge_output_step.outputs.team}}"
     tester: "{{merge_output_step.outputs.tester}}"
