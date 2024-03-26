@@ -9,7 +9,7 @@ const _prompts = {} as Record<string, Record<string, string>>;
  * @param moduleName name of the module
  * @param content prompt template as map
  */
-export const registerPrompt = (content: Record<string, string>) => {
+export const registerPrompt = (key: string, content: Record<string, string>) => {
     _prompts[PROMPT_NAME] = content;
 };
 

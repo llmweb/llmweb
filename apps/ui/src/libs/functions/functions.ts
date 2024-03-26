@@ -28,6 +28,10 @@ export const getFunctions = (moduleName: string) => {
  * @param moduleName name of the module
  * @param functionName name of the function
  */
-export const getFunction = (moduleName: string, functionName: string) => {
-    return (_functions[moduleName] || {})[functionName] as Action;
+export const getFunction = (source: string) => {
+    const funcMap = Object.values(_functions).reduce((acc, curr) => ({
+        ...acc,
+        ...curr
+    }), {});
+    return funcMap[source] as Action;
 };

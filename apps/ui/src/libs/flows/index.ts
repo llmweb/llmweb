@@ -94,28 +94,25 @@ export const evalOutputData = (
 
 const applyStep = async (step, scope) => {
   let inputs = {};
-  let entryName = '', moduleName = '', context = {};
+  let source = '', context = {};
 
   if (step.type === "llm") {
-    moduleName = "default_functions";
-    entryName = "queryByPromptTemplate";
+    source = "queryByPromptTemplate";
 
     inputs = evalDataDefinition(step.inputs, scope);
     context = step.context;
   } else {
-    const { entry, module, ...contextVal } = step.type === "retrieval" ? {
+    const { entry, ...contextVal } = step.type === "retrieval" ? {
       ...step.context,
-      module: "default_functions",
       entry: "retrieveContents",
     } :step.context;
-    entryName = entry;
-    moduleName = module;
+    source = entry;
     context = contextVal;
 
     inputs = evalDataDefinition(step.inputs, scope);
   }
 
-  const actionFn = getFunction(moduleName, entryName);
+  const actionFn = getFunction(source);
 
   const outputs = await actionFn(inputs, context);
 

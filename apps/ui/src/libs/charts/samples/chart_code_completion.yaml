@@ -7,7 +7,7 @@ flows: |-
     context:
       source: js_completion
     inputs:
-      message: {{inputs.message}}
+      message: "{{inputs.message}}"
 prompts: |-
   js_completion: |-
     SYSTEM:

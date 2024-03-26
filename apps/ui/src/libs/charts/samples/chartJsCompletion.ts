@@ -8,7 +8,7 @@ export const CHART_JS_COMPLETION = {
   context:
     source: js_completion
   inputs:
-    message: {{inputs.message}}
+    message: "{{inputs.message}}"
     `.trim(),
   prompts: `
 js_completion: |

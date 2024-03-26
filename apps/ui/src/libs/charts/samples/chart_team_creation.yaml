@@ -28,7 +28,7 @@ flows: |-
     context:
       toJSON: true
     inputs:
-      query: {{inputs.message}}
+      query: "{{inputs.message}}"
       category: tester
       count: 1
     deps:
@@ -43,7 +43,7 @@ flows: |-
     inputs:
       developer: "{{find_developer.outputs[0]}}"
       tester: "{{find_tester.outputs[0]}}"
-      requirement: {{inputs.message}}
+      requirement: "{{inputs.message}}"
     deps:
     - find_developer
     - find_tester
@@ -52,11 +52,10 @@ flows: |-
     name: Merge Output
     type: function
     context:
-      module: default_functions
-      entry: merge_outputs
+      source: merge_outputs
     inputs:
-      team: {{create_team_step.outputs}}
-      requirement: {{inputs.message}}
+      team: "{{create_team_step.outputs}}"
+      requirement: "{{inputs.message}}"
       developer: "{{find_developer.outputs[0]}}"
       tester: "{{find_tester.outputs[0]}}"
     deps:
@@ -66,13 +65,12 @@ flows: |-
     name: Generate Team Report
     type: function
     context:
-      module: custom_functions
-      entry: generate_team_report
+      source: generate_team_report
     inputs:
-      team: {{merge_output_step.outputs.team}}
-      tester: {{merge_output_step.outputs.tester}}
-      developer: {{merge_output_step.outputs.developer}}
-      requirement: {{merge_output_step.outputs.requirement}}
+      team: "{{merge_output_step.outputs.team}}"
+      tester: "{{merge_output_step.outputs.tester}}"
+      developer: "{{merge_output_step.outputs.developer}}"
+      requirement: "{{merge_output_step.outputs.requirement}}"
     deps:
     - merge_output_step
 
