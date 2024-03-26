@@ -13,8 +13,7 @@ export const CHART_DEV_TEAM_CREATION = {
 - step: find_developer
   name: Find Developer
   type: retrieval
-  context:
-    toJSON: true
+  toJSON: true
   inputs:
     query: "{{analyze_requirement.outputs.category + ' Developer, ' + inputs.message}}"
     category: developer
@@ -25,8 +24,7 @@ export const CHART_DEV_TEAM_CREATION = {
 - step: find_tester
   name: Find Tester
   type: retrieval
-  context:
-    toJSON: true
+  toJSON: true
   inputs:
     query: "{{inputs.message}}"
     category: tester

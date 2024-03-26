@@ -104,11 +104,15 @@ const applyStep = async (step, scope) => {
       source: step.source,
       toJSON: step.toJSON,
     };
+  } else if (step.type === "retrieval") {
+    source = "retrieveContents";
+    inputs = evalDataDefinition(step.inputs, scope);
+    context = {
+      toJSON: step.toJSON,
+    }
+    // function
   } else {
-    const contextTemp = step.type === "retrieval" ? {
-      ...step.context,
-      source: "retrieveContents",
-    } :step.context;
+    const contextTemp = step.context;
     context = contextTemp;
     source = contextTemp.source;
 
