@@ -3,7 +3,7 @@ import CodeIcon from '@mui/icons-material/Code';
 export const CHART_JS_COMPLETION = {
   uri: "code_completion",
   name: "Code Completion",
-  description: "Used to complete the code",
+  description: "Completes the code from where you are stuck.",
   icon: <CodeIcon/>,
   flows: `
 js_completion:

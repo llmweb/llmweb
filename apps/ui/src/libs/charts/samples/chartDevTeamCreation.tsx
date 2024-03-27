@@ -3,7 +3,7 @@ import GroupIcon from '@mui/icons-material/Group';
 export const CHART_DEV_TEAM_CREATION = {
   uri: "team_creation",
   name: "Team Creation",
-  description: "Used to create a team",
+  description: "To find a developer and a tester.",
   icon: <GroupIcon/>,
   flows: `
 analyze_requirement:
