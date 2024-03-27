@@ -47,6 +47,7 @@
     "voy-search": "^0.6.2"
   },
   "dependencies": {
+    "@mui/icons-material": "^5.15.14",
     "@mui/material": "^5.15.14"
   }
 }
