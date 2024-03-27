@@ -166,7 +166,8 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
   return (
     <Allotment defaultSizes={[12, 88]}>
       {/* Navigation Bar */}
-      <NavigationPane/>
+      <NavigationPane chartsInfo={EXAMPLE_CHARTS} 
+      selectedChart={chart}/>
       {/* Content Area */}
       <Allotment.Pane>
         <Grid
