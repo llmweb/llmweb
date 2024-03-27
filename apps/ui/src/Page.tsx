@@ -43,6 +43,7 @@ import { getFunctions } from "./libs/functions";
 import { LogView } from "./views/LogView";
 import { deleteChart, getAllCharts, saveChart } from "./libs/charts/storage";
 import { ChartCreationView } from "./views/ChartCreationView";
+import NavigationPane from "./views/NavigationPane";
 
 // TODO: needs to load from Retrieval tab too
 
@@ -165,123 +166,7 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
   return (
     <Allotment defaultSizes={[12, 88]}>
       {/* Navigation Bar */}
-      <Allotment.Pane>
-        <Heading
-          as="h1"
-          pl={1}
-          pb={1}
-          pt={1}
-          whiteSpace={"nowrap"}
-          textOverflow={"ellipsis"}
-          size="md"
-        >
-          LLM Web
-        </Heading>
-        <Heading
-          as="h4"
-          pl={1}
-          pb={2}
-          pt={5}
-          whiteSpace={"nowrap"}
-          textOverflow={"ellipsis"}
-          size="xs"
-        >
-          Examples
-        </Heading>
-        <List spacing={1}>
-          {EXAMPLE_CHARTS.map((chart, idx) => {
-            return (
-              <ListItem
-                key={idx}
-                style={{
-                  paddingLeft: "7px",
-                  paddingTop: "5px",
-                  paddingBottom: "5px",
-                  backgroundColor:
-                    chart.uri === flowChartUri
-                      ? "#E2E8F0" /*#EEF2F6*/
-                      : "transparent",
-                }}
-              >
-                <Flex width={"100%"}>
-                  <Link
-                    href={`#/${chart.uri}`}
-                    style={{
-                      whiteSpace: "nowrap",
-                      textOverflow: "ellipsis",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {chart.name}
-                  </Link>
-                </Flex>
-              </ListItem>
-            );
-          })}
-        </List>
-        <Heading
-          as="h4"
-          pl={1}
-          pb={2}
-          pt={5}
-          whiteSpace={"nowrap"}
-          textOverflow={"ellipsis"}
-          size="xs"
-        >
-          My Charts
-        </Heading>
-        <Spacer />
-        <List spacing={1}>
-          {charts.map((chart, idx) => {
-            return (
-              <ListItem
-                key={idx}
-                style={{
-                  paddingLeft: "7px",
-                  paddingTop: "5px",
-                  paddingBottom: "5px",
-                  backgroundColor:
-                    chart.uri === flowChartUri
-                      ? "#E2E8F0" /*#EEF2F6*/
-                      : "transparent",
-                }}
-              >
-                <Flex width={"100%"}>
-                  <Link
-                    href={`#/${chart.uri}`}
-                    style={{
-                      whiteSpace: "nowrap",
-                      textOverflow: "ellipsis",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {chart.name}
-                  </Link>
-                  <Spacer />
-                  <Link
-                    pr={1}
-                    onClick={async () => {
-                      await deleteChart(chart.uri);
-                      setCharts((charts) =>
-                        charts.filter((c) => c.uri !== chart.uri)
-                      );
-                      window.location.hash = `#/${DEFAULT_CHART.uri}`;
-                    }}
-                  >
-                    <MaterialIcon
-                      icon="delete"
-                      style={{
-                        verticalAlign: "middle",
-                        color: "#6c6c6c",
-                      }}
-                    />
-                  </Link>
-                </Flex>
-              </ListItem>
-            );
-          })}
-        </List>
-      </Allotment.Pane>
+      <NavigationPane/>
       {/* Content Area */}
       <Allotment.Pane>
         <Grid
