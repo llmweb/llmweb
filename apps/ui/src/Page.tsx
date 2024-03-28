@@ -164,7 +164,7 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
   }, [chart.prompts]);
 
   return (
-    <Allotment defaultSizes={[22, 88]}>
+    <Allotment defaultSizes={[18, 88]}>
       {/* Navigation Bar */}
       <NavigationPane chartsInfo={EXAMPLE_CHARTS} 
       selectedChart={chart}/>
