@@ -18,19 +18,15 @@ export const CHART_DEV_TEAM_CREATION = {
     query: "{{analyze_requirement.outputs.category + ' Developer, ' + inputs.message}}"
     category: developer
     count: 1
-  deps:
-  - analyze_requirement
 
 - step: find_tester
   name: Find Tester
   type: retrieval
   toJSON: true
   inputs:
-    query: "{{inputs.message}}"
+    query: "{{analyze_requirement.outputs.category + ', ' + inputs.message}}"
     category: tester
     count: 1
-  deps:
-  - analyze_requirement
 
 - step: create_team_step
   name: Form The Team
@@ -41,9 +37,6 @@ export const CHART_DEV_TEAM_CREATION = {
     developer: "{{find_developer.outputs[0]}}"
     tester: "{{find_tester.outputs[0]}}"
     requirement: "{{inputs.message}}"
-  deps:
-  - find_developer
-  - find_tester
 
 - step: merge_output_step
   name: Merge Output
@@ -54,8 +47,6 @@ export const CHART_DEV_TEAM_CREATION = {
     requirement: "{{inputs.message}}"
     developer: "{{find_developer.outputs[0]}}"
     tester: "{{find_tester.outputs[0]}}"
-  deps:
-  - create_team_step
 
 - step: generate_report_step
   name: Generate Team Report
@@ -66,8 +57,6 @@ export const CHART_DEV_TEAM_CREATION = {
     tester: "{{merge_output_step.outputs.tester}}"
     developer: "{{merge_output_step.outputs.developer}}"
     requirement: "{{merge_output_step.outputs.requirement}}"
-  deps:
-  - merge_output_step
     `.trim(),
   prompts: `
 categorize_input: |

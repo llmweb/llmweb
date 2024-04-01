@@ -72,25 +72,31 @@ export const evalDataDefinition = (input: Data, scope: Data): Data => {
   return store;
 };
 
-/**
- * evaluate output data definition
- *
- * @param outputData output data definition
- * @param result function result
- * @returns evaluated output data values
- */
-export const evalOutputData = (
-  outputData: Record<string, string>,
-  result: Value
-): Data => {
-  return Object.entries(outputData).reduce((prev, [path, resultPath]) => {
+const buildDeps = ( flow: Flow ): Flow => {
+  // get steps
+  const stepMap = flow.reduce((prev, step) => {
     return {
       ...prev,
-      [path]:
-        resultPath?.length > 0 ? getValue(result as Data, resultPath) : result,
+      [step.step]: true,
     };
-  }, {} as Data);
-};
+  }, {});
+
+  return flow.map((step) => {
+    const inputsAsString = JSON.stringify(step.inputs || {});
+
+    // match all aaa.bbb in inputAsString
+    const matches = inputsAsString.match(/([a-zA-Z_$][a-zA-Z\d_$]*\.[a-zA-Z_$][a-zA-Z\d_$])/g);
+
+    const deps = [...new Set(matches.map((match) => match.split(".")[0]).filter((dep) => stepMap[dep]))];
+
+    console.log(step.step, ' => ', deps);
+
+    return {
+      ...step,
+      deps,
+    } 
+  });
+}
 
 const applyStep = async (step, scope) => {
   let source = '', context = {};
@@ -121,10 +127,8 @@ const applyStep = async (step, scope) => {
   return { [step.step]: { inputs, outputs } };
 };
 
-
-
 export const createPlan = (flow: Flow): Plan => {
-  const result = flow.reduce(
+  const result = buildDeps(flow).reduce(
     (acc, step, idx) => {
       let { batch, curr } = acc;
       const deps = (step.deps || []).filter((n) => curr[n]);
@@ -203,31 +207,6 @@ export const createFlowAction = (flow: Flow): Action => {
   };
 };
 
-const buildDeps = ( flow: Flow ): Flow => {
-  // get steps
-  const stepsMap = flow.reduce((prev, step) => {
-    return {
-      ...prev,
-      [step.step]: true,
-    };
-  }, {});
-
-  return flow.map((step) => {
-    const inputsAsString = JSON.stringify(step.inputs || {});
-
-    // match all aaa.bbb in inputAsString
-    const matches = inputsAsString.match(/([a-zA-Z_$][a-zA-Z\d_$]*\.[a-zA-Z_$][a-zA-Z\d_$])/g);
-
-    const deps = [...new Set(matches.map((match) => match.split(".")[0]).filter((dep) => stepsMap[dep]))];
-
-    console.log(step.step, ' => ', deps);
-
-    return {
-      ...step,
-      deps,
-    } 
-  });
-}
 
 export const createMermaidContent = (flow: Flow): string => {
   const stepMap = flow.reduce((prev, step) => {
@@ -238,7 +217,7 @@ export const createMermaidContent = (flow: Flow): string => {
   }, {});
 
   const diagramContent = buildDeps(flow).map((step) => {
-    const prevSteps = step.deps
+    const prevSteps = step.deps.length > 0
       ? step.deps.map((dep) => stepMap[dep])
       : [STEP_USER_INPUT];
     return prevSteps
