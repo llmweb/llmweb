@@ -93,29 +93,26 @@ export const evalOutputData = (
 };
 
 const applyStep = async (step, scope) => {
-  let inputs = {};
   let source = '', context = {};
-
   if (step.type === "llm") {
     source = "queryByPromptTemplate";
 
-    inputs = evalDataDefinition(step.inputs, scope);
     context = {
       source: step.source,
       toJSON: step.toJSON,
     };
   } else if (step.type === "retrieval") {
     source = "retrieveContents";
-    inputs = evalDataDefinition(step.inputs, scope);
     context = {
       toJSON: step.toJSON,
     }
     // function
   } else {
     source = step.source;
-    inputs = evalDataDefinition(step.inputs, scope);
     context = {};
   }
+
+  const inputs = evalDataDefinition(step.inputs, scope);
 
   const actionFn = getFunction(source);
 
@@ -123,6 +120,8 @@ const applyStep = async (step, scope) => {
 
   return { [step.step]: { inputs, outputs } };
 };
+
+
 
 export const createPlan = (flow: Flow): Plan => {
   const result = flow.reduce(
@@ -204,6 +203,32 @@ export const createFlowAction = (flow: Flow): Action => {
   };
 };
 
+const buildDeps = ( flow: Flow ): Flow => {
+  // get steps
+  const stepsMap = flow.reduce((prev, step) => {
+    return {
+      ...prev,
+      [step.step]: true,
+    };
+  }, {});
+
+  return flow.map((step) => {
+    const inputsAsString = JSON.stringify(step.inputs || {});
+
+    // match all aaa.bbb in inputAsString
+    const matches = inputsAsString.match(/([a-zA-Z_$][a-zA-Z\d_$]*\.[a-zA-Z_$][a-zA-Z\d_$])/g);
+
+    const deps = [...new Set(matches.map((match) => match.split(".")[0]).filter((dep) => stepsMap[dep]))];
+
+    console.log(step.step, ' => ', deps);
+
+    return {
+      ...step,
+      deps,
+    } 
+  });
+}
+
 export const createMermaidContent = (flow: Flow): string => {
   const stepMap = flow.reduce((prev, step) => {
     return {
@@ -212,7 +237,7 @@ export const createMermaidContent = (flow: Flow): string => {
     };
   }, {});
 
-  const diagramContent = flow.map((step) => {
+  const diagramContent = buildDeps(flow).map((step) => {
     const prevSteps = step.deps
       ? step.deps.map((dep) => stepMap[dep])
       : [STEP_USER_INPUT];
