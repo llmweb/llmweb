@@ -17,7 +17,13 @@ self.onmessage = async (e) => {
       } else if (data.type === "resetVectorStore") {
         resp = await resetVectorStore();
       } else if (data.type === "addDocumentsToVectorStore") {
-        resp = await addDocumentsToVectorStore(data.inputs.inputs, data.inputs.context);
+        resp = await addDocumentsToVectorStore(data.inputs.inputs, data.inputs.context, msg => {
+          self.postMessage({
+            outputs: msg,
+            status: "progress",
+            task_id,
+        });
+      });
       } else if (data.type === "queryVectorStore") {
         resp = await queryVectorStore(data.inputs.query, data.inputs.context);
       }

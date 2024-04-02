@@ -114,13 +114,14 @@ export const initVectorStore = async () => {
 
 export const addDocumentsToVectorStore = async (
   texts: string[],
-  { category }
+  { category },
+  progressCallback, 
 ) => {
   for (let idx in texts) {
     await _ctx.vStore.addText(texts[idx], {
       category,
     });
-    console.log(`embedding ${category} ${idx}/${texts.length - 1}`);
+    progressCallback(`embedding ${category} ${idx}/${texts.length - 1}`);
   }
 };
 

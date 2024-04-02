@@ -17,7 +17,13 @@ import {
 } from "@chakra-ui/react";
 import yaml from "js-yaml";
 import { useCopilot } from "./components";
-import { ChatView, FlowChartView, SettingsView, ChartCreationView, LogView } from "./views";
+import {
+  ChatView,
+  FlowChartView,
+  SettingsView,
+  ChartCreationView,
+  LogView,
+} from "./views";
 import { eventBus } from "./libs/EventBus";
 import {
   CATEGORY_JS_COMPLETION,
@@ -36,7 +42,12 @@ import { MaterialIcon, MonacoEditor } from "./components";
 import { addDocumentsToVectorStore, resetVectorStore } from "./libs/datasets";
 import { evalJsBlock, downloadYaml, uploadYaml, debounce } from "./libs/utils";
 import { getFunctions } from "./libs/functions";
-import { deleteChart, getAllCharts, saveChart, EXAMPLE_CHARTS } from "./libs/charts";
+import {
+  deleteChart,
+  getAllCharts,
+  saveChart,
+  EXAMPLE_CHARTS,
+} from "./libs/charts";
 import { Flow } from "./libs/types";
 
 const DEFAULT_CHART = EXAMPLE_CHARTS[0];
@@ -56,11 +67,11 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
   // flow
   const [chart, setChart] = useState({
     uri: flowChartUri,
-    name: '',
-    flows: '',
-    prompts: '',
-    datasets: '',
-    functions: '',
+    name: "",
+    flows: "",
+    prompts: "",
+    datasets: "",
+    functions: "",
   });
 
   const [flow, setFlow] = useState([]);
@@ -70,6 +81,9 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
   const [playgroundCollapsed, setPlaygroundCollapsed] = useState(false);
 
   const { autoSave } = useCopilot();
+
+  const [changed, setChanged] = useState(false);
+  const [isInit, setIsInit] = useState(true);
 
   // url hook
   useEffect(() => {
@@ -85,6 +99,10 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
       if (!chart) {
         window.location.hash = `#/${DEFAULT_CHART.uri}`;
       } else {
+        // TODO: need to make it work for debug and production
+        setFlow([]);
+        setIsInit(true);
+        setChanged(false);
         setChart({ ...chart });
       }
     };
@@ -92,12 +110,23 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
   }, [flowChartUri]);
 
   useEffect(() => {
-    if (autoSave) {
-      const isExample =
-        EXAMPLE_CHARTS.filter((c) => c.uri === chart.uri).length > 0;
-      if (!isExample) {
-        saveChartDebounced(chart.uri, chart);
+    if (!isInit) {
+      if (autoSave) {
+        const isExample =
+          EXAMPLE_CHARTS.filter((c) => c.uri === chart.uri).length > 0;
+        if (!isExample) {
+          saveChartDebounced(chart).then(() => {
+            setChanged(false);
+          });
+        }
+      } else {
+        if (EXAMPLE_CHARTS.filter((c) => c.uri === chart.uri).length === 0) {
+          setChanged(true);
+        }
       }
+    } else {
+      // TODO: workaround to prevent initial load to be marked as change
+      setTimeout(() => setIsInit(false), 100);
     }
   }, [chart]);
 
@@ -121,7 +150,7 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
 
   useEffect(() => {
     try {
-      const flows = yaml.load(chart.flows) as Flow || [];
+      const flows = (yaml.load(chart.flows) as Flow) || [];
       /*
       const flow = Object.entries(flowDef).map(([name, value]) => ({
         name,
@@ -148,7 +177,7 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
 
   useEffect(() => {
     try {
-      const res = (yaml.load(chart.prompts) as Record<string, string>);
+      const res = yaml.load(chart.prompts) as Record<string, string>;
       if (res != null) {
         registerPrompt(chart.uri, res);
       }
@@ -250,7 +279,9 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
                       overflow: "hidden",
                     }}
                   >
-                    {chart.name}
+                    {`${chart.name}${
+                      chart.uri === flowChartUri && changed ? "*" : ""
+                    }`}
                   </Link>
                   <Spacer />
                   <Link
@@ -346,8 +377,10 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
                         color="#6c6c6c"
                         icon={<MaterialIcon icon="save" />}
                         marginLeft={2}
+                        isDisabled={!changed}
                         onClick={() => {
                           saveChart(chart);
+                          setChanged(false);
                         }}
                       />
                       <IconButton
