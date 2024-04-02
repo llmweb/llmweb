@@ -5,9 +5,11 @@ import { getModel } from "./models";
 
 const { COPILOT_OPENAI_API_URL, COPILOT_OPENAI_API_KEY } = import.meta.env;
 
+
+
 const _ctx = {
   apiUrl: COPILOT_OPENAI_API_URL,
-  apiKey: COPILOT_OPENAI_API_KEY,
+  apiKey: localStorage.getItem('apiKey') || COPILOT_OPENAI_API_KEY,
   llmMode: '',
 }
 
