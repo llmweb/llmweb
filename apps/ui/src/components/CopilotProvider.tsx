@@ -24,7 +24,7 @@ export const CopilotProvider = ({ children }) => {
   // TODO: vector store needs api key for now
   useEffect(() => {
     const init = async () => {
-      await wait(4000);
+      await wait(1000);
       eventBus.publish(
         EVENT_COPILOT_DEBUG,
         "NOTE: webLLM requires 2GB in browser cache storage, it could be purged from devTools."

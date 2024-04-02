@@ -1,4 +1,6 @@
-import { IVSSimilaritySearchItem} from 'vector-storage';
+import { IVSSimilaritySearchItem } from "vector-storage";
+import { EVENT_COPILOT_DEBUG } from "../../const";
+import { eventBus } from "../EventBus";
 
 const _ctx = {
   worker: null as Worker,
@@ -13,15 +15,20 @@ export const initVectorStore = async () => {
 
     _ctx.worker.onmessage = (e) => {
       const { task_id, status, outputs } = e.data;
-      const { resolve, reject } = _ctx.pendingPromises.get(task_id);
 
-      // Clean up after resolving or rejecting the promise
-      _ctx.pendingPromises.delete(task_id);
-
-      if (status === "success") {
-        resolve(outputs);
+      if (status === "progress") {
+        eventBus.publish(EVENT_COPILOT_DEBUG, outputs);
       } else {
-        reject(outputs);
+        const { resolve, reject } = _ctx.pendingPromises.get(task_id);
+
+        // Clean up after resolving or rejecting the promise
+        _ctx.pendingPromises.delete(task_id);
+
+        if (status === "success") {
+          resolve(outputs);
+        } else if (status === "failure") {
+          reject(outputs);
+        }
       }
     };
 
@@ -43,9 +50,14 @@ export const initVectorStore = async () => {
   // return _ctx.worker;
 };
 
-export const queryVectorStore = async (query, context): Promise<IVSSimilaritySearchItem<{
+export const queryVectorStore = async (
+  query,
+  context
+): Promise<
+  IVSSimilaritySearchItem<{
     category: string;
-}>[]> => {
+  }>[]
+> => {
   return new Promise((resolve, reject) => {
     const task_id = Math.random().toString(36).substring(2);
     _ctx.pendingPromises.set(task_id, { resolve, reject });
@@ -85,8 +97,8 @@ export const addDocumentsToVectorStore = async (inputs: string, context) => {
       task_id,
       inputs: {
         inputs,
-        context
-      }
+        context,
+      },
     });
   });
 };
