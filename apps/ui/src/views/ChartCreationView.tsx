@@ -81,7 +81,7 @@ export const ChartCreationView = () => {
                 setUri("");
                 setName("");
                 setIsOpen(false);
-                await saveChart(uri, {
+                await saveChart({
                   uri,
                   name,
                   flows: ``.trim(),

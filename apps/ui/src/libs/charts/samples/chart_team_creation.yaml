@@ -12,26 +12,20 @@ flows: |-
   - step: find_developer
     name: Find Developer
     type: retrieval
-    context:
-      toJSON: true
+    toJSON: true
     inputs:
       query: "{{analyze_requirement.outputs.category + ' Developer, ' + inputs.message}}"
       category: developer
       count: 1
-    deps:
-    - analyze_requirement
 
   - step: find_tester
     name: Find Tester
     type: retrieval
-    context:
-      toJSON: true
+    toJSON: true
     inputs:
-      query: "{{inputs.message}}"
+      query: "{{analyze_requirement.outputs.category + ', ' + inputs.message}}"
       category: tester
       count: 1
-    deps:
-    - analyze_requirement
 
   - step: create_team_step
     name: Form The Team
@@ -42,35 +36,26 @@ flows: |-
       developer: "{{find_developer.outputs[0]}}"
       tester: "{{find_tester.outputs[0]}}"
       requirement: "{{inputs.message}}"
-    deps:
-    - find_developer
-    - find_tester
 
   - step: merge_output_step
     name: Merge Output
     type: function
-    context:
-      source: merge_outputs
+    source: merge_outputs
     inputs:
       team: "{{create_team_step.outputs}}"
       requirement: "{{inputs.message}}"
       developer: "{{find_developer.outputs[0]}}"
       tester: "{{find_tester.outputs[0]}}"
-    deps:
-    - create_team_step
 
   - step: generate_report_step
     name: Generate Team Report
     type: function
-    context:
-      source: generate_team_report
+    source: generate_team_report
     inputs:
       team: "{{merge_output_step.outputs.team}}"
       tester: "{{merge_output_step.outputs.tester}}"
       developer: "{{merge_output_step.outputs.developer}}"
       requirement: "{{merge_output_step.outputs.requirement}}"
-    deps:
-    - merge_output_step
 
 prompts: |-
   categorize_input: |

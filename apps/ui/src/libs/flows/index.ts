@@ -73,49 +73,58 @@ export const evalDataDefinition = (input: Data, scope: Data): Data => {
 };
 
 /**
- * evaluate output data definition
- *
- * @param outputData output data definition
- * @param result function result
- * @returns evaluated output data values
+ * Build flow dependencies based on input reference
+ * 
+ * TODO: This is a naive implementation, need to improve it
+ * 
+ * @param flow flow definition
+ * @returns flow definition with deps
  */
-export const evalOutputData = (
-  outputData: Record<string, string>,
-  result: Value
-): Data => {
-  return Object.entries(outputData).reduce((prev, [path, resultPath]) => {
+const buildDeps = ( flow: Flow ): Flow => {
+  // get steps
+  const stepMap = flow.reduce((prev, step) => {
     return {
       ...prev,
-      [path]:
-        resultPath?.length > 0 ? getValue(result as Data, resultPath) : result,
+      [step.step]: true,
     };
-  }, {} as Data);
-};
+  }, {});
+
+  return flow.map((step) => {
+    const inputsAsString = JSON.stringify(step.inputs || {});
+
+    // match all aaa.bbb in inputAsString
+    const matches = inputsAsString.match(/([a-zA-Z_$][a-zA-Z\d_$]*\.[a-zA-Z_$][a-zA-Z\d_$])/g);
+
+    const deps = [...new Set(matches.map((match) => match.split(".")[0]).filter((dep) => stepMap[dep]))];
+
+    return {
+      ...step,
+      deps,
+    } 
+  });
+}
 
 const applyStep = async (step, scope) => {
-  let inputs = {};
   let source = '', context = {};
-
   if (step.type === "llm") {
     source = "queryByPromptTemplate";
 
-    inputs = evalDataDefinition(step.inputs, scope);
     context = {
       source: step.source,
       toJSON: step.toJSON,
     };
   } else if (step.type === "retrieval") {
     source = "retrieveContents";
-    inputs = evalDataDefinition(step.inputs, scope);
     context = {
       toJSON: step.toJSON,
     }
     // function
   } else {
     source = step.source;
-    inputs = evalDataDefinition(step.inputs, scope);
     context = {};
   }
+
+  const inputs = evalDataDefinition(step.inputs, scope);
 
   const actionFn = getFunction(source);
 
@@ -125,7 +134,7 @@ const applyStep = async (step, scope) => {
 };
 
 export const createPlan = (flow: Flow): Plan => {
-  const result = flow.reduce(
+  const result = buildDeps(flow).reduce(
     (acc, step, idx) => {
       let { batch, curr } = acc;
       const deps = (step.deps || []).filter((n) => curr[n]);
@@ -204,6 +213,7 @@ export const createFlowAction = (flow: Flow): Action => {
   };
 };
 
+
 export const createMermaidContent = (flow: Flow): string => {
   const stepMap = flow.reduce((prev, step) => {
     return {
@@ -212,8 +222,8 @@ export const createMermaidContent = (flow: Flow): string => {
     };
   }, {});
 
-  const diagramContent = flow.map((step) => {
-    const prevSteps = step.deps
+  const diagramContent = buildDeps(flow).map((step) => {
+    const prevSteps = step.deps.length > 0
       ? step.deps.map((dep) => stepMap[dep])
       : [STEP_USER_INPUT];
     return prevSteps
