@@ -23,8 +23,14 @@ const MODELS = getModels();
 export const SettingsView = () => {
   const [showPass, setShowPass] = useState(false);
   const [key, setKey] = useState(getApiKey());
-  const [mode, setMode] = useState(MODELS[0].key);
+  const [mode, setMode] = useState( localStorage.getItem('model') || MODELS[0].key);
   const { autoSave, setAutoSave } = useCopilot();
+  const saveApiKey = (apiKey)=>{
+    localStorage.setItem('apiKey', apiKey);
+  }
+  const savePrefModel = (model)=>{
+    localStorage.setItem('model', model)
+  }
 
   return (
     <Box p={3}>
@@ -37,7 +43,8 @@ export const SettingsView = () => {
           onChange={(e) => {
             const mode = e.target.value;
             setMode(mode);
-            setLangModel(mode);
+            setLangModel(mode)
+            savePrefModel(mode);
           }}
         >
           {
@@ -46,17 +53,18 @@ export const SettingsView = () => {
             })
           }
         </Select>
-        <FormLabel paddingTop={4}>OpenAI API Key</FormLabel>
+        <FormLabel paddingTop={4}>{mode.charAt(0).toUpperCase() + mode.slice(1)} key</FormLabel>
         <InputGroup size="md">
           <Input
             pr="4.5rem"
             type={showPass ? "text" : "password"}
-            placeholder="Enter openai-api-key"
+            placeholder={`Enter ${mode} api-key`}
             value={key}
             onChange={(e) => {
               const apiKey = e.target.value;
               setKey(apiKey);
               setApiKey(apiKey);
+              saveApiKey(apiKey);
             }}
           />
           <InputRightElement width="4.5rem">
