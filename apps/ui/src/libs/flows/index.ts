@@ -72,6 +72,14 @@ export const evalDataDefinition = (input: Data, scope: Data): Data => {
   return store;
 };
 
+/**
+ * Build flow dependencies based on input reference
+ * 
+ * TODO: This is a naive implementation, need to improve it
+ * 
+ * @param flow flow definition
+ * @returns flow definition with deps
+ */
 const buildDeps = ( flow: Flow ): Flow => {
   // get steps
   const stepMap = flow.reduce((prev, step) => {
@@ -88,8 +96,6 @@ const buildDeps = ( flow: Flow ): Flow => {
     const matches = inputsAsString.match(/([a-zA-Z_$][a-zA-Z\d_$]*\.[a-zA-Z_$][a-zA-Z\d_$])/g);
 
     const deps = [...new Set(matches.map((match) => match.split(".")[0]).filter((dep) => stepMap[dep]))];
-
-    console.log(step.step, ' => ', deps);
 
     return {
       ...step,
