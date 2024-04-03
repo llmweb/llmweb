@@ -9,7 +9,7 @@ import {
   Box,
   Checkbox,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   getApiKey,
   setApiKey,
@@ -21,6 +21,7 @@ import { useCopilot } from "../components";
 const MODELS = getModels();
 
 export const SettingsView = () => {
+  const timerId = useRef(0);
   const [showPass, setShowPass] = useState(false);
   const [key, setKey] = useState(getApiKey());
   const [mode, setMode] = useState( localStorage.getItem('model') || MODELS[0].key);
@@ -31,6 +32,18 @@ export const SettingsView = () => {
   const savePrefModel = (model)=>{
     localStorage.setItem('model', model)
   }
+  const debounce = (func, delay)=>{
+    return (e)=>{
+      clearTimeout(timerId.current)
+      let apiKey = e.target.value;
+      timerId.current = setTimeout( 
+        ()=>{
+          func(apiKey)  
+        }
+        ,delay)
+    }
+  }
+  const handleSaveApiKey = debounce(saveApiKey, 2000)
 
   return (
     <Box p={3}>
@@ -64,7 +77,7 @@ export const SettingsView = () => {
               const apiKey = e.target.value;
               setKey(apiKey);
               setApiKey(apiKey);
-              saveApiKey(apiKey);
+              handleSaveApiKey(e);
             }}
           />
           <InputRightElement width="4.5rem">
