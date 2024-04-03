@@ -171,10 +171,19 @@ export const createPlan = (flow: Flow): Plan => {
 export const executePlan = async (plan: Plan, inputs: Data): Promise<Data> => {
   const result = await plan.reduce(
     async (contextPromise, batch) => {
-      const { scope } = await contextPromise;
+      const { scope, lastStep } = await contextPromise;
+
+      const errorExists = Object.values(scope).some((step) => step.error);
+
+      if( errorExists) {
+        return {
+          scope,
+          lastStep
+        };
+      }
 
       const resArr = await Promise.all(
-        batch.map((step) => applyStep(step, scope))
+        batch.map((step) => applyStep(step, scope).catch((e) => ({[step.step]:{error: e.message}})))
       );
 
       return {
@@ -187,6 +196,7 @@ export const executePlan = async (plan: Plan, inputs: Data): Promise<Data> => {
         lastStep: batch[batch.length - 1].step,
       };
     },
+
     // init value
     Promise.resolve({
       scope: {
@@ -196,10 +206,14 @@ export const executePlan = async (plan: Plan, inputs: Data): Promise<Data> => {
     })
   );
 
+  const errorExists = Object.values(result.scope).some((step) => step.error);
+
 
   return {
     inputs,
-    outputs: result.scope[result.lastStep].outputs,
+    outputs: errorExists ? { 
+      message: "Error exists in the flow, please check the logs tab",
+    } : result.scope[result.lastStep].outputs,
     ...result.scope,
   };
 };

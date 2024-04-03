@@ -107,6 +107,7 @@ create_team_with_suggestion: |
   What is the team name and introduction?
     `.trim(),
   datasets: `
+# Supports Record<string, string[]>, each string value will be put to the vector store as one record
 developer: [
   '{"name": "Alex Johnson", "gender": "Male", "introduction": "Innovative software developer with a passion for AI.", "age": 29, "role": "Software Developer", "description": "Alex thrives on challenging coding marathons and is a green tea enthusiast."}',
   '{"name": "Daniela Ortiz", "gender": "Female", "introduction": "Frontend developer with a love for responsive design.", "age": 31, "role": "Frontend Developer", "description": "Daniela is a coffee aficionado who codes as beautifully as she paints."}',
