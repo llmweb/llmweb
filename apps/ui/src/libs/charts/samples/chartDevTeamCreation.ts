@@ -59,7 +59,7 @@ export const CHART_DEV_TEAM_CREATION = {
     requirement: "{{merge_output_step.outputs.requirement}}"
     `.trim(),
   prompts: `
-categorize_input: |
+categorize_input: |-
   SYSTEM:
   You are a helpful assistant that help to identify the requirement to the best category, by rules below:
   - if it is artificial intelligence or machine learning related, return category "AI"
@@ -81,7 +81,7 @@ categorize_input: |
   USER:
   What is the category to '{{message}}'?
 
-create_team_with_suggestion: |
+create_team_with_suggestion: |-
   SYSTEM:
   You are a helpful assistant to creatively create nick name and one-sentence introduction for given team:
 
