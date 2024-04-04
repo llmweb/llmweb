@@ -95,7 +95,7 @@ const buildDeps = ( flow: Flow ): Flow => {
     // match all aaa.bbb in inputAsString
     const matches = inputsAsString.match(/([a-zA-Z_$][a-zA-Z\d_$]*\.[a-zA-Z_$][a-zA-Z\d_$])/g);
 
-    const deps = [...new Set(matches.map((match) => match.split(".")[0]).filter((dep) => stepMap[dep]))];
+    const deps = matches ? [...new Set(matches.map((match) => match.split(".")[0]).filter((dep) => stepMap[dep]))] : [];
 
     return {
       ...step,
@@ -114,7 +114,7 @@ const applyStep = async (step, scope) => {
       toJSON: step.toJSON,
     };
   } else if (step.type === "retrieval") {
-    source = "retrieveContents";
+    source = "retrieveDataset";
     context = {
       toJSON: step.toJSON,
     }

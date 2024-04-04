@@ -39,7 +39,7 @@ import "allotment/dist/style.css";
 
 import { registerPrompt } from "./libs/prompts";
 import { MaterialIcon, MonacoEditor } from "./components";
-import { addDocumentsToVectorStore, resetVectorStore } from "./libs/datasets";
+import { addDocumentsToVectorStore, resetVectorStore, setCurrentDatasets } from "./libs/datasets";
 import { evalJsBlock, downloadYaml, uploadYaml, debounce } from "./libs/utils";
 import { getFunctions } from "./libs/functions";
 import {
@@ -182,9 +182,20 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
         registerPrompt(chart.uri, res);
       }
     } catch (e) {
-      console.error(e);
+      // console.error(e);
     }
   }, [chart.prompts]);
+
+  useEffect(() => {
+    try {
+      const res = yaml.load(chart.datasets) as Record<string, string[]>;
+      if (res != null) {
+        setCurrentDatasets(res);
+      }
+    } catch (e) {
+      // console.error(e);
+    }
+  }, [chart.datasets]);
 
   return (
     <Allotment defaultSizes={[12, 88]}>
