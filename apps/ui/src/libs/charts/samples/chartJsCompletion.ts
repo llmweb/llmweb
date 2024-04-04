@@ -1,6 +1,7 @@
 export const CHART_JS_COMPLETION = {
   uri: "code_completion",
   name: "Code Completion",
+  version: 1,
   flows: `
 - step: js_completion
   name: Code Completion

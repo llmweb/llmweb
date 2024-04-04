@@ -1,6 +1,7 @@
 export const CHART_TREE_INSPECTION = {
   uri: "tree_inspection",
   name: "Tree Inspection",
+  version: 1,
   flows: `
 # NOTE: Better LLM than 2B might be needed for this example
 - step: get_file_tree_samples
