@@ -2,6 +2,7 @@ export const CHART_DEV_TEAM_CREATION = {
   uri: "team_creation",
   name: "Team Creation",
   flows: `
+# Note: Needs to load the datasets to the vector store before running this example
 - step: analyze_requirement
   name: Analyze User Requirement
   type: llm

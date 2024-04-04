@@ -15,7 +15,7 @@
     "@chakra-ui/react": "^2.8.1",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-    "@mlc-ai/web-llm": "0.2.29",
+    "@mlc-ai/web-llm": "0.2.30",
     "@tanstack/react-table": "^8.10.7",
     "@types/jest": "^29.5.12",
     "@types/js-yaml": "^4.0.9",
