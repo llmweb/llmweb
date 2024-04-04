@@ -100,7 +100,7 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
         window.location.hash = `#/${DEFAULT_CHART.uri}`;
       } else {
         // TODO: need to make it work for debug and production
-        setFlow([]);
+        setFlow((yaml.load(chart.flows) as Flow) || []);
         setIsInit(true);
         setChanged(false);
         setChart({ ...chart });
