@@ -24,7 +24,7 @@ export const createModel = (modelId: string, progressCallback) => {
       },
       body: JSON.stringify({
         model: "gpt-4",
-        max_tokens: 64,
+        // max_tokens: 64,
         ...JSON.parse(query), 
       }),
     })

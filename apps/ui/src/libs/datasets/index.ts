@@ -5,6 +5,7 @@ import { eventBus } from "../EventBus";
 const _ctx = {
   worker: null as Worker,
   pendingPromises: new Map(),
+  currDatasets: {}
 };
 
 export const initVectorStore = async () => {
@@ -102,5 +103,13 @@ export const addDocumentsToVectorStore = async (inputs: string, context) => {
     });
   });
 };
+
+export const setCurrentDatasets = (datasets) => {
+  _ctx.currDatasets = datasets;
+}
+
+export const getCurrentDataset = (category: string): string[] => {
+  return _ctx.currDatasets[category];
+}
 
 initVectorStore();

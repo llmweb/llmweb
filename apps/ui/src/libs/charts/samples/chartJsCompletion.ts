@@ -10,7 +10,7 @@ export const CHART_JS_COMPLETION = {
     message: "{{inputs.message}}"
     `.trim(),
   prompts: `
-js_completion: |
+js_completion: |-
   SYSTEM:
   You are a helpful code assistant. Your task is to complete the javascript code from input. You should return the code block only with no explanation. 
 
