@@ -99,14 +99,15 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
       if (!chart) {
         window.location.hash = `#/${DEFAULT_CHART.uri}`;
       } else {
-        // TODO: need to make it work for debug and production
-        setFlow((yaml.load(chart.flows) as Flow) || []);
         setIsInit(true);
-        setChanged(false);
         setChart({ ...chart });
       }
     };
     loadCharts();
+    return () => {
+      setFlow([]);
+      setChanged(false);
+    }
   }, [flowChartUri]);
 
   useEffect(() => {
@@ -125,7 +126,8 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
         }
       }
     } else {
-      // TODO: workaround to prevent initial load to be marked as change
+      // TODO: initial load has a chart change from monaco editor back to chart object here
+      // this shouldn't counted as changed. Need a better solution later
       setTimeout(() => setIsInit(false), 100);
     }
   }, [chart]);
