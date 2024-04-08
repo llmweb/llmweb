@@ -67,6 +67,7 @@ export default function Page({ flowChartUri }: { flowChartUri: string }) {
   // flow
   const [chart, setChart] = useState({
     uri: flowChartUri,
+    version: 1,
     name: "",
     flows: "",
     prompts: "",

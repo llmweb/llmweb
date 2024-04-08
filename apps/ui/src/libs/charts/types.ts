@@ -8,6 +8,8 @@ export interface Chart {
     uri: string;
     // Name of the chart
     name: string;
+    // Version of the chart
+    version: number;
     // flows in the chart as yaml string
     flows: string;
     // prompts in the chart as yaml string
