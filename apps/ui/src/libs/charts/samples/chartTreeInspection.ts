@@ -20,7 +20,7 @@ export const CHART_TREE_INSPECTION = {
     category: files
 
 - step: get_process_function
-  name: Analyze User Requirement
+  name: Get Process Function
   type: llm
   source: get_process_function
   # toJSON: true
