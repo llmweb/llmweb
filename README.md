@@ -8,5 +8,8 @@
 - All in your browser, no security risk.
 - Compatible with [WebLLM](https://webllm.mlc.ai/), GPT-4 and Gemini.
 
+## Quick Demo
+[See here](https://youtu.be/8IFePlCX7aI)
+
 ## Screenshot
 ![screenshot](docs/READMEr2024-04-01-20-58-29.png)
